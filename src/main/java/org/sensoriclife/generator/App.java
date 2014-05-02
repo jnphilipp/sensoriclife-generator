@@ -13,7 +13,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author jnphilipp
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class App {
 	/**
@@ -83,6 +83,8 @@ public class App {
 	 */
 	public static String getProperty(String key) {
 		switch ( key ) {
+			case "realtime":
+				return App.properties.getProperty(key, "true");
 			default:
 				return App.properties.getProperty(key, "");
 		}

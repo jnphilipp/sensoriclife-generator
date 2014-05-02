@@ -1,7 +1,13 @@
 package org.sensoriclife.generator;
 
 import java.io.Serializable;
+import org.sensoriclife.Logger;
 
+/**
+ * 
+ * @author paul
+ * @version 0.0.1
+ */
 public class NameGenerator implements Serializable
 {
 	private static String[] vocals = {"a","e","i","o","u"};
@@ -29,6 +35,7 @@ public class NameGenerator implements Serializable
 			last = last+vocals[j-1]+consonants[k-1];
 		}
 		
+		Logger.debug(NameGenerator.class, "generated name:"+first+" "+last);
 		return first+" "+last;
 	}
 }

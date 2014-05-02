@@ -2,13 +2,18 @@ package org.sensoriclife.generator;
 
 import java.io.Serializable;
 
+/**
+ * 
+ * @author paul
+ * @version 0.0.1
+ */
 public class ResidentialUnit implements Serializable
 {
   	private int electricityID;
   	private int electricityMeter;
-	private String address;
-	private int persons;
-	private int squareMeter;//not use for electricity, but later
+		private String address;
+		private int persons;
+		private int squareMeter;//not use for electricity, but later
 	
 	ResidentialUnit(int electricityID, String address, int persons)
 	{

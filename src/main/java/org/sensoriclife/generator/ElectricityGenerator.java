@@ -8,6 +8,11 @@ import java.util.Scanner;
 import org.sensoriclife.Logger;
 import org.sensoriclife.util.Helpers;
 
+/**
+ * 
+ * @author paul
+ * @version 0.0.1
+ */
 public class ElectricityGenerator implements Serializable
 {
 
@@ -33,10 +38,6 @@ public class ElectricityGenerator implements Serializable
 		}
 		//send once a spout of the user information as jason
 		
-		//ask for speed
-		System.out.println("0 for real time speed\n1 for fast speed");
-		Scanner sc= new Scanner(System.in);
-		int scan = sc.nextInt();//flag for simulation time
 		int timestamp = 0;
 		while(true)//endless generaed
 		{
@@ -44,18 +45,18 @@ public class ElectricityGenerator implements Serializable
 			{
 			//send spout with following data
 				//id
-				System.out.println( residentialList.get(i).getElectricityID() );
+				Logger.info(ElectricityGenerator.class, "ElectricityID", ""+residentialList.get(i).getElectricityID() );
 				//electricity meter
 				double temp = residentialList.get(i).getElectricityMeter()+residentialList.get(i).getPersons()*0.2;//calculate new value with old value+persons*0,2
 				residentialList.get(i).setElectricityMeter( (int)temp );//set new value
-				System.out.println( residentialList.get(i).getElectricityMeter() );
+				Logger.info(ElectricityGenerator.class, "ElectricityMeter", ""+residentialList.get(i).getElectricityMeter() );
 				//timestamp
-				System.out.println( timestamp+"\n" );
+				Logger.info(ElectricityGenerator.class, "ElectricityGeneratorTimestamp", ""+timestamp );
 			}
 			//count up timestamp
 			timestamp=timestamp+15;
 			//simulation time option
-			if(scan == 0)
+			if(App.getBooleanProperty("realtime"))
 			{
 				try
 				{

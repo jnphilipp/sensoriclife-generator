@@ -3,6 +3,11 @@ package org.sensoriclife.generator;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author paul
+ * @version 0.0.1
+ */
 public class User implements Serializable
 {
   	private int id;

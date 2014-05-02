@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import org.sensoriclife.Logger;
 import org.sensoriclife.util.Helpers;
 
+/**
+ * 
+ * @author paul
+ * @version 0.0.1
+ */
 public class WorldGenerator implements Serializable
 {
 	private int cities;
