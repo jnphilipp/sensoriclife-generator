@@ -1,4 +1,5 @@
-import java.lang.Math;
+package org.sensoriclife.generator;
+
 import java.io.Serializable;
 
 public class NameGenerator implements Serializable

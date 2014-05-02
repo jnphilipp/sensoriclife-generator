@@ -1,31 +1,35 @@
+package org.sensoriclife.generator;
+
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner; 
+import org.sensoriclife.Logger;
+import org.sensoriclife.util.Helpers;
 
 public class ElectricityGenerator implements Serializable
 {
 
-	private static ArrayList<User> userList= new ArrayList<User>();
-	private static ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
+	private ArrayList<User> userList= new ArrayList<User>();
+	private ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
 	
-	public static void main(String[] args)
+	public void run()
 	{
 		//read userList & residentialList-file and write this in the global variable
 		try
 		{
-			ObjectInputStream o1 = new ObjectInputStream(new FileInputStream("userList.ser"));
+			ObjectInputStream o1 = new ObjectInputStream(new FileInputStream(Helpers.getUserDir() + "/data/userList.ser"));
 			userList = (ArrayList<User>) o1.readObject();
 			o1.close();
 			
-			ObjectInputStream o2 = new ObjectInputStream(new FileInputStream("residentialList.ser"));
+			ObjectInputStream o2 = new ObjectInputStream(new FileInputStream(Helpers.getUserDir() + "/data/residentialList.ser"));
 			residentialList	= (ArrayList<ResidentialUnit>) o2.readObject();
 			o2.close();
 		}
 		catch( Exception e ) 
 		{ 
-			System.err.println( e ); 
+			Logger.error(ElectricityGenerator.class, e.toString());
 		}
 		//send once a spout of the user information as jason
 		
@@ -59,7 +63,7 @@ public class ElectricityGenerator implements Serializable
 				}
 				catch( Exception e ) 
 				{ 
-					System.err.println( e ); 
+					Logger.error(ElectricityGenerator.class, e.toString()); 
 				}
 			}	
 		}

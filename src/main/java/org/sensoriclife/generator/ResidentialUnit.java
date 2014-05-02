@@ -1,3 +1,5 @@
+package org.sensoriclife.generator;
+
 import java.io.Serializable;
 
 public class ResidentialUnit implements Serializable

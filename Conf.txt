@@ -1,6 +1,0 @@
-citys=5
-districts=5
-streets=5
-buildings=5
-residentialUnits=5
-users=3000
