@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class User implements Serializable
 {
-  	private int id;
+  private int id;
 	private String name;
 	private ArrayList<String> address = new ArrayList<String>();
 	

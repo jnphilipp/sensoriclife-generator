@@ -6,7 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -84,6 +83,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, 0 ); 
 								residentialList.add( residentialUnit);
 								this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+
 								totalResidentialUnits--;
 							}
 						}
@@ -100,5 +100,5 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 		{ 
 			Logger.error(WorldGenerator.class, e.toString());
 		}
-	}
+	}	
 }
