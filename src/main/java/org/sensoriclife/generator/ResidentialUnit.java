@@ -5,12 +5,15 @@ import java.io.Serializable;
 /**
  * 
  * @author paul
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class ResidentialUnit implements Serializable
 {
   	private int electricityID;
   	private int electricityMeter;
+		private int waterID;
+  	private int hotWaterMeter;
+		private int coldWaterMeter;
 		private String address;
 		private int persons;
 		private int squareMeter;//not use for electricity, but later
@@ -53,4 +56,29 @@ public class ResidentialUnit implements Serializable
 	{
 		return squareMeter;
 	}	
+	
+	public int getWaterID()
+	{
+		return waterID;
+	}
+	
+	public int getHotWaterMeter()
+	{
+		return hotWaterMeter;
+	}
+	
+	public void setHotWaterMeter(int newValue)
+	{
+		this.hotWaterMeter=newValue;
+	}
+	
+	public int getColdWaterMeter()
+	{
+		return coldWaterMeter;
+	}
+	
+	public void setColdWaterMeter(int newValue)
+	{
+		this.coldWaterMeter=newValue;
+	}
 }

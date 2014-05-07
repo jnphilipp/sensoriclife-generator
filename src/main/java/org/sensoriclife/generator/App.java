@@ -31,7 +31,7 @@ public class App {
 
 	public static void main(String[] args) {
 		String configFile = App.DEFAULT_CONFIGURATION_FILE, logFile = "";
-		boolean world = false, electricity = false;
+		boolean world = false, electricity = false, water = false;
 
 		if (args.length != 0) {
 			List<String> l = Arrays.asList(args);
@@ -55,6 +55,10 @@ public class App {
 					electricity = true;
 				}
 					break;
+				case "water": {
+					water = true;
+				}
+					break;
 				}
 			}
 		}
@@ -74,9 +78,11 @@ public class App {
 		TopologyBuilder builder = new TopologyBuilder();
 
 		if (world)
-			builder.setSpout("electricity", new WorldGenerator(), 1);
+			builder.setSpout("world", new WorldGenerator(), 1);
 		if (electricity)
 			builder.setSpout("electricity", new ElectricityGenerator(), 10);
+		if (water)
+			builder.setSpout("water", new WaterGenerator(), 10);
 	
 		Config conf = new Config();
 		conf.setDebug(true);
