@@ -17,7 +17,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, stefan
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class WorldGenerator extends BaseRichSpout implements Serializable
 {	
@@ -28,7 +28,8 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 	
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("electricity"));
+		declarer.declare(new Fields("user", "billing_address", "other_addresses"));
+		declarer.declare(new Fields("electricity_id", "address"));
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 							{
 								User user = new User(tempUsers, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r);
 								userList.add(user);
-								this.collector.emit(new Values(user.getID(), user.getName(), user.getAddresses()));
+								this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";")));
 
 								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, (int) (Math.random()*20+1));
 								residentialList.add(residentialUnit);

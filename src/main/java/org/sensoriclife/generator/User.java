@@ -2,6 +2,7 @@ package org.sensoriclife.generator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -37,8 +38,15 @@ public class User implements Serializable
 	{
 		return this.address;
 	}
+
+	public List<String> getOtherAddresses() {
+		if ( this.address.size() > 1 )
+			return this.address.subList(1, this.address.size());
+		else
+			return new ArrayList<>();
+	}
 	
-	public String getAddress()
+	public String getBillingAddress()
 	{
 		return this.address.get(0);
 	}
