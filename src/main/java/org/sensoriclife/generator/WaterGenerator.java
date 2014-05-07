@@ -59,25 +59,23 @@ public class WaterGenerator extends BaseRichSpout {
 			}
 		}			
 
-		int timeflag=0;
-		for (ResidentialUnit unit : residentialList) {
-			
-			int valHot = unit.getHotWaterMeter() + (int) (unit.getPersons() * 25);
-			unit.setHotWaterMeter(valHot);
-			int valCold = unit.getColdWaterMeter() + (int) (unit.getPersons() * 50);
-			unit.setColdWaterMeter(valCold);
+		for(int i=0;i<4;i++)//4x15min
+		{
+			for (ResidentialUnit unit : residentialList) 
+			{
+				int valHot = unit.getHotWaterMeter() + (int) (unit.getPersons() * 25);
+				unit.setHotWaterMeter(valHot);
+				int valCold = unit.getColdWaterMeter() + (int) (unit.getPersons() * 50);
+				unit.setColdWaterMeter(valCold);
 
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
-			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-			
-			if(this.collector!=null)
-									this.collector.emit(new Values( unit.getWaterID(), unit.getHotWaterMeter(), unit.getColdWaterMeter(), sdf.format(new Date(timestamp.getTime())) ));
-			
-			if(timeflag%4==0){
-				timestamp.setTime(timestamp.getTime()+60*60*1000);
-				timeflag=0;
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
+				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				if(this.collector!=null)
+										this.collector.emit(new Values( unit.getWaterID(), unit.getHotWaterMeter(), unit.getColdWaterMeter(), sdf.format(new Date(timestamp.getTime())) ));
+
+					timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
-			timeflag++;
 		}
 
 		if (App.getBooleanProperty("realtime")) {
