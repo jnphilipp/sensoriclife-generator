@@ -7,6 +7,8 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -25,19 +27,22 @@ import org.sensoriclife.util.Helpers;
  */
 public class ElectricityGenerator extends BaseRichSpout {
 
-	//private ArrayList<User> userList = new ArrayList<User>();
 	private ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
 
-	private void deserializing() {
+	
+	/*
+	 * throws FileNotFoundException if WorldGenerator is still in processing and didn't create the .ser file yet
+	 */
+	private void deserializing() throws FileNotFoundException{
 		try {
 			ObjectInputStream o = new ObjectInputStream(new FileInputStream(Helpers.getUserDir() + "/data/residentialList.ser"));
 			this.residentialList = (ArrayList<ResidentialUnit>) o.readObject();
 			o.close();
-		} catch (Exception e) {
+		} catch (IOException | ClassNotFoundException e) {
 			Logger.error(ElectricityGenerator.class, e.toString());
-		}
+		}		
 	}
 
 	@Override
@@ -47,8 +52,13 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		if (residentialList == null)
-			deserializing();
+		if (residentialList == null){
+			try{
+				deserializing();	
+			}catch(FileNotFoundException f){
+				return;
+			}
+		}			
 
 		for (ResidentialUnit unit : residentialList) {
 			int val = unit.getElectricityMeter() + (int) (unit.getPersons() * 0.2);
