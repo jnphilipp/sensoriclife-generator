@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import org.json.simple.JSONObject;
 import org.sensoriclife.Logger;
-import org.sensoriclife.util.Helpers;
 
 /**
  * 
@@ -71,7 +70,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 			json.put("id", unit.getElectricityID());
 			json.put("time", sdf.format(new Date(timestamp.getTime())));
 			json.put("value", unit.getElectricityMeter());
-			this.collector.emit(new Values(json));
+			this.collector.emit(new Values(json.toJSONString()));
 			
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
