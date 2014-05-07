@@ -1,18 +1,24 @@
 package org.sensoriclife.generator;
 
+import backtype.storm.spout.SpoutOutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichSpout;
+import backtype.storm.tuple.Fields;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Map;
 import org.sensoriclife.Logger;
 import org.sensoriclife.util.Helpers;
 
 /**
  * 
  * @author paul
- * @version 0.0.1
+ * @version 0.0.2
  */
-public class WorldGenerator implements Serializable
+public class WorldGenerator extends BaseRichSpout implements Serializable
 {
 	private int cities;
 	private int districts;
@@ -20,6 +26,7 @@ public class WorldGenerator implements Serializable
 	private int buildings;
 	private int residentialUnits;
 	private int users;
+	private SpoutOutputCollector collector;
 	
 	private ArrayList<User> userList= new ArrayList<User>();
 	private ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
@@ -63,13 +70,9 @@ public class WorldGenerator implements Serializable
 		//write the lists of users and residential units as java object, finally close the world generator
 		try
 		{  	
-			ObjectOutputStream o1 = new ObjectOutputStream(new FileOutputStream(Helpers.getUserDir() + "/data/userList.ser",true));
-			o1.writeObject(userList);
-			o1.close();
-			
-			ObjectOutputStream o2 = new ObjectOutputStream(new FileOutputStream(Helpers.getUserDir() + "/data/residentialList.ser",true));
-			o2.writeObject(residentialList);
-			o2.close();
+			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(Helpers.getUserDir() + "/data/residentialList.ser",true));
+			o.writeObject(residentialList);
+			o.close();
 		}
 		catch ( Exception e ) 
 		{ 
@@ -79,5 +82,21 @@ public class WorldGenerator implements Serializable
 		{
 			Logger.info("WorldGenerator finished!");
 		}
+	}
+
+	@Override
+	public void declareOutputFields(OutputFieldsDeclarer declarer) {
+		declarer.declare(new Fields("electricity"));
+	}
+
+	@Override
+	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+		this.collector = collector;
+	}
+
+	@Override
+	public void nextTuple() 
+	{
+		//this.collector.emit(new Values());
 	}
 }

@@ -1,5 +1,9 @@
 package org.sensoriclife.generator;
 
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,7 +17,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author jnphilipp
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class App {
 	/**
@@ -67,7 +71,20 @@ public class App {
 		if ( world )
 			new WorldGenerator().run();
 		if ( electricity )
-			new ElectricityGenerator().run();
+		{
+			TopologyBuilder builder = new TopologyBuilder();
+			builder.setSpout("electricity", new ElectricityGenerator(), 10);
+
+			Config conf = new Config();
+			conf.setDebug(true);
+			conf.setNumWorkers(2);
+
+			LocalCluster cluster = new LocalCluster();
+			cluster.submitTopology("test", conf, builder.createTopology());
+			Utils.sleep(10000);
+			cluster.killTopology("test");
+			cluster.shutdown();
+		}
 	}
 
 	/**
