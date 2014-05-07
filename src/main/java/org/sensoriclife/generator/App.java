@@ -133,6 +133,10 @@ public class App {
 		return Integer.parseInt(App.getProperty(key));
 	}
 
+	public static void loadConfig() {
+		App.loadConfig(App.DEFAULT_CONFIGURATION_FILE);
+	}
+
 	public static void loadConfig(String configFile) {
 		if (!new File(configFile).exists()) {
 			System.err.println("The configuration file does not exists.");
