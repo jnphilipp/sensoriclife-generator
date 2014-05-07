@@ -16,8 +16,8 @@ import org.sensoriclife.util.Helpers;
 
 /**
  * 
- * @author paul
- * @version 0.0.2
+ * @author paul, stefan
+ * @version 0.0.3
  */
 public class WorldGenerator extends BaseRichSpout implements Serializable
 {	

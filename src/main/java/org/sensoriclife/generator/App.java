@@ -16,8 +16,8 @@ import org.sensoriclife.util.Helpers;
 
 /**
  * 
- * @author jnphilipp
- * @version 0.0.3
+ * @author jnphilipp, paul, stefan
+ * @version 0.0.4
  */
 public class App {
 	/**
