@@ -37,7 +37,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 	 */
 	private void deserializing() throws FileNotFoundException{
 		try {
-			ObjectInputStream o = new ObjectInputStream(new FileInputStream(Helpers.getUserDir() + "/data/residentialList.ser"));
+			ObjectInputStream o = new ObjectInputStream(new FileInputStream(WorldGenerator.PATH_OUTPUT_FILE));
 			this.residentialList = (ArrayList<ResidentialUnit>) o.readObject();
 			o.close();
 		} catch (IOException | ClassNotFoundException e) {

@@ -5,6 +5,8 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
+
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -19,26 +21,39 @@ import org.sensoriclife.util.Helpers;
  * @version 0.0.2
  */
 public class WorldGenerator extends BaseRichSpout implements Serializable
-{
-	private int cities;
-	private int districts;
-	private int streets;
-	private int buildings;
-	private int residentialUnits;
-	private int users;
+{	
+	public static final String PATH_OUTPUT_FILE = Helpers.getUserDir() + "/data/residentialList.ser";
+	
 	private SpoutOutputCollector collector;
+	private boolean worldAlreadyCreated = false;
 	
-	private ArrayList<User> userList= new ArrayList<User>();
-	private ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
-	
-	public void run() {
-		this.cities = App.getIntegerProperty("cities");
-		this.districts = App.getIntegerProperty("districts");
-		this.streets = App.getIntegerProperty("streets");
-		this.buildings = App.getIntegerProperty("buildings");
-		this.residentialUnits = App.getIntegerProperty("residentialUnits");
-		this.users = App.getIntegerProperty("users");
+	@Override
+	public void declareOutputFields(OutputFieldsDeclarer declarer) {
+		declarer.declare(new Fields("electricity"));
+	}
 
+	@Override
+	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+		this.collector = collector;		
+	}
+
+	@Override
+	public void nextTuple() 
+	{
+		if (!worldAlreadyCreated)
+			createWorld();
+	}
+	
+	private void createWorld() {
+		int cities = App.getIntegerProperty("cities");
+		int districts = App.getIntegerProperty("districts");
+		int streets = App.getIntegerProperty("streets");
+		int buildings = App.getIntegerProperty("buildings");
+		int residentialUnits = App.getIntegerProperty("residentialUnits");
+		int users = App.getIntegerProperty("users");
+		
+		ArrayList<User> userList= new ArrayList<User>();
+		ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
 
 		int tempUsers = users;// use for user id
 		int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
@@ -53,50 +68,37 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 						{
 							if(tempUsers > 0)//busy homes
 							{
-								userList.add( new User(tempUsers, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r) );
-								//System.out.println("generate user: "+tempUsers+", who live in");
-								residentialList.add( new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, (int) (Math.random()*20+1)) );
-								//System.out.println("the geneated residential unit: "+totalResidentialUnits+" in "+"city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r+"\n");
+								User user = new User(tempUsers, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r);
+								userList.add(user);
+								this.collector.emit(new Values(user.getID(), user.getName(), user.getAddresses()));
+
+								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, (int) (Math.random()*20+1));
+								residentialList.add(residentialUnit);
+								this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+								
 								tempUsers--;
 								totalResidentialUnits--;
 							}
 							else//empty flats
 							{
-								residentialList.add( new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, 0 ) );
-								//System.out.println("geneate the empty residential unit: "+totalResidentialUnits+" in "+"city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r+"\n");
+								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, 0 ); 
+								residentialList.add( residentialUnit);
+								this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
 								totalResidentialUnits--;
 							}
 						}
 		//write the lists of users and residential units as java object, finally close the world generator
 		try
-		{  	
-			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(Helpers.getUserDir() + "/data/residentialList.ser",true));
+		{  
+			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(PATH_OUTPUT_FILE, true));
 			o.writeObject(residentialList);
 			o.close();
+			Logger.info("World is created and written to " + PATH_OUTPUT_FILE);
+			this.worldAlreadyCreated = true;
 		}
 		catch ( Exception e ) 
 		{ 
 			Logger.error(WorldGenerator.class, e.toString());
 		}
-		finally
-		{
-			Logger.info("WorldGenerator finished!");
-		}
-	}
-
-	@Override
-	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("electricity"));
-	}
-
-	@Override
-	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-		this.collector = collector;
-	}
-
-	@Override
-	public void nextTuple() 
-	{
-		//this.collector.emit(new Values());
 	}
 }

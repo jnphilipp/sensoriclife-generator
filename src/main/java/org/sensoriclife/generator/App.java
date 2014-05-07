@@ -15,7 +15,7 @@ import org.sensoriclife.Logger;
 import org.sensoriclife.util.Helpers;
 
 /**
- *
+ * 
  * @author jnphilipp
  * @version 0.0.3
  */
@@ -33,33 +33,36 @@ public class App {
 		String configFile = App.DEFAULT_CONFIGURATION_FILE, logFile = "";
 		boolean world = false, electricity = false;
 
-		if ( args.length != 0 ) {
+		if (args.length != 0) {
 			List<String> l = Arrays.asList(args);
 			Iterator<String> it = l.iterator();
 
-			while ( it.hasNext() ) {
-				switch ( it.next() ) {
-					case "-conf": {
-						configFile = it.next();
-					} break;
-					case "-log": {
-						logFile = it.next();
-					} break;
-					case "world": {
-						world = true;
-					} break;
-					case "electricity": {
-						electricity = true;
-					} break;
+			while (it.hasNext()) {
+				switch (it.next()) {
+				case "-conf": {
+					configFile = it.next();
+				}
+					break;
+				case "-log": {
+					logFile = it.next();
+				}
+					break;
+				case "world": {
+					world = true;
+				}
+					break;
+				case "electricity": {
+					electricity = true;
+				}
+					break;
 				}
 			}
 		}
 
-		if ( !logFile.isEmpty() && new File(logFile).exists() )
+		if (!logFile.isEmpty() && new File(logFile).exists())
 			try {
 				Logger.getInstance(logFile);
-			}
-			catch ( IOException e ) {
+			} catch (IOException e) {
 				Logger.error(App.class, "Error while reading log config file.", e.toString());
 				System.exit(1);
 			}
@@ -68,23 +71,23 @@ public class App {
 
 		App.loadConfig(configFile);
 
-		if ( world )
-			new WorldGenerator().run();
-		if ( electricity )
-		{
-			TopologyBuilder builder = new TopologyBuilder();
+		TopologyBuilder builder = new TopologyBuilder();
+
+		if (world)
+			builder.setSpout("electricity", new WorldGenerator(), 1);
+		if (electricity)
 			builder.setSpout("electricity", new ElectricityGenerator(), 10);
+	
+		Config conf = new Config();
+		conf.setDebug(true);
+		conf.setNumWorkers(2);
 
-			Config conf = new Config();
-			conf.setDebug(true);
-			conf.setNumWorkers(2);
+		LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology("test", conf, builder.createTopology());
+		Utils.sleep(10000);
+		cluster.killTopology("test");
+		cluster.shutdown();
 
-			LocalCluster cluster = new LocalCluster();
-			cluster.submitTopology("test", conf, builder.createTopology());
-			Utils.sleep(10000);
-			cluster.killTopology("test");
-			cluster.shutdown();
-		}
 	}
 
 	/**
@@ -95,21 +98,24 @@ public class App {
 	}
 
 	/**
-	 * @param key key
+	 * @param key
+	 *            key
 	 * @return values of the given key
 	 */
 	public static String getProperty(String key) {
-		switch ( key ) {
-			case "realtime":
-				return App.properties.getProperty(key, "true");
-			default:
-				return App.properties.getProperty(key, "");
+		switch (key) {
+		case "realtime":
+			return App.properties.getProperty(key, "true");
+		default:
+			return App.properties.getProperty(key, "");
 		}
 	}
 
 	/**
 	 * Returns the value of the given key as boolean;
-	 * @param key key
+	 * 
+	 * @param key
+	 *            key
 	 * @return <code>true</code> or <code>false</code>
 	 */
 	public static boolean getBooleanProperty(String key) {
@@ -118,7 +124,9 @@ public class App {
 
 	/**
 	 * Returns the value of the given key as integer.
-	 * @param key key
+	 * 
+	 * @param key
+	 *            key
 	 * @return integer value
 	 */
 	public static int getIntegerProperty(String key) {
@@ -126,7 +134,7 @@ public class App {
 	}
 
 	public static void loadConfig(String configFile) {
-		if ( !new File(configFile).exists() ) {
+		if (!new File(configFile).exists()) {
 			System.err.println("The configuration file does not exists.");
 			Logger.error(App.class, "The configuration file does not exists.");
 			System.exit(1);
@@ -135,8 +143,7 @@ public class App {
 		try {
 			App.properties = new Properties();
 			App.properties.load(new FileInputStream(configFile));
-		}
-		catch ( IOException e ) {
+		} catch (IOException e) {
 			Logger.error(App.class, "Error while reading config file.", e.toString());
 			System.exit(1);
 		}
