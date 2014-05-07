@@ -68,12 +68,12 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 						{
 							if(tempUsers > 0)//busy homes
 							{
-								User user = new User(tempUsers, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r);
+								User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
 								userList.add(user);
 								if(this.collector!=null)
 									this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";")));
 
-								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, (int) (Math.random()*20+1));
+								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
 								residentialList.add(residentialUnit);
 								if(this.collector!=null)
 									this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
@@ -83,7 +83,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 							}
 							else//empty flats
 							{
-								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, 0 ); 
+								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
 								residentialList.add( residentialUnit);
 								if(this.collector!=null)
 									this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
