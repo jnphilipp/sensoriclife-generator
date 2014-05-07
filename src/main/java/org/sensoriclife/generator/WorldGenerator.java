@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -55,8 +56,10 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 							{
 								userList.add( new User(tempUsers, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r) );
 								//System.out.println("generate user: "+tempUsers+", who live in");
+								nextTuple(userList.get(userList.size()-1).getID(), userList.get(userList.size()-1).getName(), userList.get(userList.size()-1).getAddresses());
 								residentialList.add( new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, (int) (Math.random()*20+1)) );
 								//System.out.println("the geneated residential unit: "+totalResidentialUnits+" in "+"city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r+"\n");
+								nextTuple(residentialList.get(residentialList.size()-1).getElectricityID(), residentialList.get(residentialList.size()-1).getAddress());
 								tempUsers--;
 								totalResidentialUnits--;
 							}
@@ -64,6 +67,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 							{
 								residentialList.add( new ResidentialUnit(totalResidentialUnits, "city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r, 0 ) );
 								//System.out.println("geneate the empty residential unit: "+totalResidentialUnits+" in "+"city "+c+",district "+d+",street "+s+",building "+b+",residential unit "+r+"\n");
+								nextTuple(residentialList.get(residentialList.size()-1).getElectricityID(), residentialList.get(residentialList.size()-1).getAddress());
 								totalResidentialUnits--;
 							}
 						}
@@ -94,9 +98,13 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 		this.collector = collector;
 	}
 
-	@Override
-	public void nextTuple() 
+	public void nextTuple(int id, String name, ArrayList<String> address) 
 	{
-		//this.collector.emit(new Values());
+		this.collector.emit(new Values(id, name, address));
+	}
+	
+	public void nextTuple(int id, String address) 
+	{
+		this.collector.emit(new Values(id, address));
 	}
 }
