@@ -42,7 +42,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 			createWorld();
 	}
 	
-	private void createWorld() {
+	protected void createWorld() {
 		int cities = App.getIntegerProperty("cities");
 		int districts = App.getIntegerProperty("districts");
 		int streets = App.getIntegerProperty("streets");
