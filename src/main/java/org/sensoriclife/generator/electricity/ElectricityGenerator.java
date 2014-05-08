@@ -1,4 +1,4 @@
-package org.sensoriclife.generator;
+package org.sensoriclife.generator.electricity;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -20,6 +20,8 @@ import org.apache.accumulo.core.data.Value;
 import org.json.simple.JSONObject;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.App;
+import org.sensoriclife.generator.world.ResidentialUnit;
 import org.sensoriclife.util.Helpers;
 
 /**

@@ -1,4 +1,4 @@
-package org.sensoriclife.generator;
+package org.sensoriclife.generator.water;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -17,6 +17,8 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.App;
+import org.sensoriclife.generator.world.ResidentialUnit;
 import org.sensoriclife.util.Helpers;
 
 /**

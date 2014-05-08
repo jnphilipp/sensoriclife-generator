@@ -1,4 +1,4 @@
-package org.sensoriclife.generator;
+package org.sensoriclife.generator.world;
 
 import java.io.Serializable;
 

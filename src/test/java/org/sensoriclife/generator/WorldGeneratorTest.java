@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.world.WorldGenerator;
 
 /**
  *

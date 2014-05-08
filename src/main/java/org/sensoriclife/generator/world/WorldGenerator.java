@@ -1,4 +1,4 @@
-package org.sensoriclife.generator;
+package org.sensoriclife.generator.world;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.Map;
 import org.apache.accumulo.core.data.Value;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.App;
 import org.sensoriclife.util.Helpers;
 
 /**
@@ -19,8 +20,6 @@ import org.sensoriclife.util.Helpers;
  */
 public class WorldGenerator extends BaseRichSpout implements Serializable
 {	
-	public static final String PATH_OUTPUT_FILE = Helpers.getUserDir() + "/data/residentialList.ser";
-	
 	private SpoutOutputCollector collector;
 	private boolean worldAlreadyCreated = false;
 	

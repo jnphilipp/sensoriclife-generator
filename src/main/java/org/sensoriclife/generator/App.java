@@ -17,6 +17,9 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.electricity.ElectricityGenerator;
+import org.sensoriclife.generator.water.WaterGenerator;
+import org.sensoriclife.generator.world.WorldGenerator;
 import org.sensoriclife.util.Helpers;
 
 /**
