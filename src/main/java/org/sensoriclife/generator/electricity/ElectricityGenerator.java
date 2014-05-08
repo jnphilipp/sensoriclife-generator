@@ -54,10 +54,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 			try {
 				unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 			} 
-			catch (IOException ex) {
-				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
-			} 
-			catch (ClassNotFoundException ex) {
+			catch (IOException | ClassNotFoundException ex) {
 				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
 

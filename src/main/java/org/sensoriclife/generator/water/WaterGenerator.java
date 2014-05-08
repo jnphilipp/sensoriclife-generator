@@ -8,9 +8,11 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
@@ -53,14 +55,15 @@ public class WaterGenerator extends BaseRichSpout {
 				try {
 					unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 				} 
-				catch (IOException ex) {
-					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
-				} 
-				catch (ClassNotFoundException ex) {
+				catch (IOException | ClassNotFoundException ex) {
 					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
 				}
 				
-				this.collector.emit(new Values(unit.getWaterID(), unit.getHotWaterMeter(), unit.getColdWaterMeter()));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
+				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+				String formattedTime = sdf.format(new Date(timestamp.getTime()));
+				
+				this.collector.emit(new Values(unit.getWaterID(), formattedTime , unit.getHotWaterMeter(), unit.getColdWaterMeter()));
 				timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
 		}
@@ -77,6 +80,6 @@ public class WaterGenerator extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("water"));
+		declarer.declare(new Fields("id", "time", "hotWaterMeter", "coldWaterMeter"));
 	}
 }
