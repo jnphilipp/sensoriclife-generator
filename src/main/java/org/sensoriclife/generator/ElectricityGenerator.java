@@ -6,43 +6,31 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
 import org.json.simple.JSONObject;
 import org.sensoriclife.Logger;
+import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.util.Helpers;
 
 /**
  * 
  * @author paul, stefan
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class ElectricityGenerator extends BaseRichSpout {
 
-	private ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
-
-	
-	/*
-	 * throws FileNotFoundException if WorldGenerator is still in processing and didn't create the .ser file yet
-	 */
-	private void deserializing() throws FileNotFoundException{
-		try {
-			ObjectInputStream o = new ObjectInputStream(new FileInputStream(WorldGenerator.PATH_OUTPUT_FILE));
-			this.residentialList = (ArrayList<ResidentialUnit>) o.readObject();
-			o.close();
-		} catch (IOException | ClassNotFoundException e) {
-			Logger.error(ElectricityGenerator.class, e.toString());
-		}		
-	}
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -51,15 +39,26 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		if (residentialList == null){
-			try{
-				deserializing();	
-			}catch(FileNotFoundException f){
-				return;
+		Iterator<Map.Entry<Key, Value>> entries = null;
+		try {
+			entries = Accumulo.getInstance().scannAll("electricity_consumption", "public");
+		} 
+		catch (TableNotFoundException ex) {
+			java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		while ( entries.hasNext() ) {
+			Map.Entry<Key, Value> entry = entries.next();
+			ResidentialUnit unit = null;
+			try {
+				unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
+			} 
+			catch (IOException ex) {
+				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			} 
+			catch (ClassNotFoundException ex) {
+				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
-		}			
 
-		for (ResidentialUnit unit : residentialList) {
 			int val = unit.getElectricityMeter() + (int) (unit.getPersons() * 0.2);
 			unit.setElectricityMeter(val);
 
@@ -77,8 +76,8 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 		if (App.getBooleanProperty("realtime")) {
 			try {
-				Thread.sleep(1000);// for testing only 1 sec
-				//Thread.sleep(900000);
+				Thread.sleep(1000/App.getIntegerProperty("timefactor"));// for testing only 1 sec
+				//Thread.sleep(900000/App.getIntegerProperty("timefactor"));
 			} catch (Exception e) {
 				Logger.error(ElectricityGenerator.class, e.toString());
 			}

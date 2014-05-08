@@ -11,7 +11,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.TableExistsException;
 import org.sensoriclife.Logger;
+import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.util.Helpers;
 
 /**
@@ -29,7 +34,7 @@ public class App {
 	 */
 	private static Properties properties;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws AccumuloSecurityException {
 		String configFile = App.DEFAULT_CONFIGURATION_FILE, logFile = "";
 		boolean world = false, electricity = false, water = false;
 
@@ -74,6 +79,21 @@ public class App {
 			Logger.getInstance();
 
 		App.loadConfig(configFile);
+
+		try {
+			if ( App.getProperty("accumulo.name").isEmpty() && App.getProperty("accumulo.zooServers").isEmpty() && App.getProperty("accumulo.user").isEmpty() && App.getProperty("accumulo.password").isEmpty() ){
+				Accumulo.getInstance().connect();
+				Accumulo.getInstance().createTable("generator_helper_table");
+			}
+			else
+				Accumulo.getInstance().connect(App.getProperty("accumulo.name"), App.getProperty("accumulo.zooServers"), App.getProperty("accumulo.user"), App.getProperty("accumulo.password"));
+		}
+		catch ( AccumuloException e ) {
+			Logger.error("Error while connecting to accumulo.", e.toString());
+		} 
+		catch (TableExistsException e) {
+			Logger.error("Error by creating table.", e.toString());
+		}
 
 		TopologyBuilder builder = new TopologyBuilder();
 

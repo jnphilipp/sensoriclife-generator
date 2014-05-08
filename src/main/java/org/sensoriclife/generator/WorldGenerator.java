@@ -6,12 +6,10 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Map;
-import org.sensoriclife.Logger;
+import org.apache.accumulo.core.data.Value;
+import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.util.Helpers;
 
 /**
@@ -51,58 +49,59 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 		int buildings = App.getIntegerProperty("buildings");
 		int residentialUnits = App.getIntegerProperty("residentialUnits");
 		int users = App.getIntegerProperty("users");
-		
-		ArrayList<User> userList= new ArrayList<User>();
-		ArrayList<ResidentialUnit> residentialList = new ArrayList<ResidentialUnit>();
 
-		int tempUsers = users;// use for user id
-		int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
-		if( tempUsers > totalResidentialUnits)// more users as total residential units
-			tempUsers=totalResidentialUnits;
-		
-		for(int c=0;c<cities;c++)
-			for(int d=0;d<districts;d++)
-				for(int s=0;s<streets;s++)
-					for(int b=0;b<buildings;b++)
-						for(int r=0;r<residentialUnits;r++)
-						{
-							if(tempUsers > 0)//busy homes
+		try{
+			int rowid = 1;
+			int tempUsers = users;// use for user id
+			if(tempUsers>100)
+				tempUsers=100;
+			int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
+			tempUsers=tempUsers/100*totalResidentialUnits;
+				
+
+			for(int c=0;c<cities;c++)
+				for(int d=0;d<districts;d++)
+					for(int s=0;s<streets;s++)
+						for(int b=0;b<buildings;b++)
+							for(int r=0;r<residentialUnits;r++)
 							{
-								User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
-								userList.add(user);
-								if(this.collector!=null)
-									this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";")));
+								if(tempUsers > 0)//busy homes
+								{
+									User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
+									//spout
+									if(this.collector!=null)
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";")));
 
-								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
-								residentialList.add(residentialUnit);
-								if(this.collector!=null)
-									this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
-								
-								tempUsers--;
-								totalResidentialUnits--;
-							}
-							else//empty flats
-							{
-								ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
-								residentialList.add( residentialUnit);
-								if(this.collector!=null)
-									this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
+									//accumulo
+									Value value = new Value(Helpers.toByteArray(residentialUnit));
+									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									rowid++;
+									//spout
+									if(this.collector!=null)
+										this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
 
-								totalResidentialUnits--;
+									tempUsers--;
+									totalResidentialUnits--;
+								}
+								else//empty flats
+								{
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									//accumulo
+									Value value = new Value(Helpers.toByteArray(residentialUnit));
+									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									rowid++;
+									//spout
+									if(this.collector!=null)
+										this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+
+									totalResidentialUnits--;
+								}
 							}
-						}
-		//write the lists of users and residential units as java object, finally close the world generator
-		try
-		{  
-			ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(PATH_OUTPUT_FILE, true));
-			o.writeObject(residentialList);
-			o.close();
-			Logger.info("World is created and written to " + PATH_OUTPUT_FILE);
-			this.worldAlreadyCreated = true;
 		}
-		catch ( Exception e ) 
-		{ 
-			Logger.error(WorldGenerator.class, e.toString());
+		catch(Exception e)
+		{
+			System.err.println(e.toString());
 		}
 	}	
 }

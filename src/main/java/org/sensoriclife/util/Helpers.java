@@ -1,9 +1,13 @@
 package org.sensoriclife.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -19,8 +23,8 @@ import org.apache.commons.io.IOUtils;
 
 /**
  *
- * @author jnphilipp
- * @version 0.4.3
+ * @author jnphilipp, paul
+ * @version 0.4.4
  */
 public class Helpers {
 	/**
@@ -166,4 +170,36 @@ public class Helpers {
 
 		return hashtext;
 	}
+	
+	public static byte[] toByteArray(Object obj) throws IOException {
+    byte[] byt = null;
+    ByteArrayOutputStream bytout = null;
+    ObjectOutputStream objout = null;
+    try {
+      bytout = new ByteArrayOutputStream();
+      objout = new ObjectOutputStream(bytout);
+      objout.writeObject(obj);
+      objout.flush();
+      byt = bytout.toByteArray();
+    } finally {
+        objout.close();
+        bytout.close();
+      }
+      return byt;
+    }
+
+    public static Object toObject(byte[] byt) throws IOException, ClassNotFoundException {
+      Object obj = null;
+      ByteArrayInputStream bytin = null;
+      ObjectInputStream objin = null;
+      try {
+        bytin = new ByteArrayInputStream(byt);
+        objin = new ObjectInputStream(bytin);
+        obj = objin.readObject();
+       } finally {
+          bytin.close();
+          objin.close();
+        }
+        return obj;
+    }
 }

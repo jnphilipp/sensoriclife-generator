@@ -3,5 +3,11 @@ districts=NUMBER OF DISTRICTS
 streets=NUMBER OF STREETS
 buildings=NUMBER OF BUILDINGS
 residentialUnits=NUMBER OF RESIDENTIAL UNITS
-users=NUMBER OF USERS
+users=NUMBER OF USERS IN PERCENT
 realtime=BOOLEAN
+timefactor=NUMBER OF DIVISOR FOR REALTIME
+
+accumulo.name=NAME
+accumulo.zooServers=SERVERS
+accumulo.user=USER
+accumulo.password=PASSWORD

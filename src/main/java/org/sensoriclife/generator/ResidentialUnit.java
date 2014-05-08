@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 
  * @author paul
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class ResidentialUnit implements Serializable
 {
@@ -14,14 +14,21 @@ public class ResidentialUnit implements Serializable
 		private int waterID;
   	private int hotWaterMeter;
 		private int coldWaterMeter;
+		private int heatingID;
+  	private int heatingMeter;
 		private String address;
 		private int persons;
 		private int squareMeter;//not use for electricity, but later
 	
-	ResidentialUnit(int electricityID, String address, int persons)
+	ResidentialUnit(int electricityID, int waterID, int heatingID, String address, int persons)
 	{
 		this.electricityID = electricityID;
+		this.waterID = waterID;
+		this.heatingID = heatingID;
 		this.electricityMeter = 0;
+		this.hotWaterMeter = 0;
+		this.coldWaterMeter = 0;
+		this.heatingMeter = 0;
 		this.address = address;	
 		this.persons = persons;
 		this.squareMeter = this.persons+1*25;
@@ -80,5 +87,20 @@ public class ResidentialUnit implements Serializable
 	public void setColdWaterMeter(int newValue)
 	{
 		this.coldWaterMeter=newValue;
+	}
+	
+	public int getHeatingID()
+	{
+		return heatingID;
+	}
+	
+	public int getheatingMeter()
+	{
+		return heatingMeter;
+	}
+	
+	public void setheatingMeter(int newValue)
+	{
+		this.heatingMeter=newValue;
 	}
 }
