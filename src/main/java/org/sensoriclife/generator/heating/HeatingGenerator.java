@@ -8,9 +8,11 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
@@ -30,6 +32,7 @@ public class HeatingGenerator extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
+	HeatingValueGenerator valueGenerator = new HeatingValueGenerator();
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -51,14 +54,17 @@ public class HeatingGenerator extends BaseRichSpout {
 			try {
 				unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 			} 
-			catch (IOException ex) {
-				java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
-			} 
-			catch (ClassNotFoundException ex) {
+			catch (IOException | ClassNotFoundException ex) {
 				java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
-
-			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"+"<heating>\n\t<id>"+unit.getHeatingID()+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()+"</meter>\n\t<time>"+timestamp.getTime()+"</time>\n<heating>";
+			
+			unit.setHeatingMeter(valueGenerator.generateNextValue(unit.getHeatingID(), unit.getHeatingMeter(), timestamp));
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			String formattedTime = sdf.format(new Date(timestamp.getTime()));
+			
+			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"+"<heating>\n\t<id>"+unit.getHeatingID()+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()+"</meter>\n\t<time>"+ formattedTime +"</time>\n<heating>";
 			this.collector.emit(new Values(xml));
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
