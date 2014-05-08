@@ -41,7 +41,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 	public void nextTuple() {
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scannAll("electricity_consumption", "public");
+			entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
 		} 
 		catch (TableNotFoundException ex) {
 			java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);

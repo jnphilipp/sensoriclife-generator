@@ -5,7 +5,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -22,9 +21,9 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul
- * @version 0.0.3
+ * @version 0.0.1
  */
-public class WaterGenerator extends BaseRichSpout {
+public class HeatingGenerator extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
@@ -43,7 +42,7 @@ public class WaterGenerator extends BaseRichSpout {
 				entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
 			} 
 			catch (TableNotFoundException ex) {
-				java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
+				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
 			while ( entries.hasNext() ) {
 				Map.Entry<Key, Value> entry = entries.next();
@@ -52,14 +51,11 @@ public class WaterGenerator extends BaseRichSpout {
 					unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 				} 
 				catch (IOException ex) {
-					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
+					java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 				} 
 				catch (ClassNotFoundException ex) {
-					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
+					java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 				}
-				
-				this.collector.emit(new Values(unit.getWaterID(), unit.getHotWaterMeter(), unit.getColdWaterMeter()));
-				timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
 		}
 
@@ -68,7 +64,7 @@ public class WaterGenerator extends BaseRichSpout {
 				Thread.sleep((4*1000)/App.getIntegerProperty("timefactor"));// for testing only 4 sec
 				//Thread.sleep((4*900000)/App.getIntegerProperty("timefactor"));//1h
 			} catch (Exception e) {
-				Logger.error(WaterGenerator.class, e.toString());
+				Logger.error(HeatingGenerator.class, e.toString());
 			}
 		}
 	}
