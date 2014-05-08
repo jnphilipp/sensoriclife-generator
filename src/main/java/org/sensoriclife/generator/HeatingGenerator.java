@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -21,7 +22,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class HeatingGenerator extends BaseRichSpout {
 
@@ -35,34 +36,35 @@ public class HeatingGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		for(int i=0;i<4;i++)//4x15min
-		{
-			Iterator<Map.Entry<Key, Value>> entries = null;
+		Iterator<Map.Entry<Key, Value>> entries = null;
+		try {
+			entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
+		} 
+		catch (TableNotFoundException ex) {
+			java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		while ( entries.hasNext() ) {
+			Map.Entry<Key, Value> entry = entries.next();
+			ResidentialUnit unit = null;
 			try {
-				entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
+				unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 			} 
-			catch (TableNotFoundException ex) {
-				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			catch (IOException ex) {
+				java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			} 
+			catch (ClassNotFoundException ex) {
+				java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			while ( entries.hasNext() ) {
-				Map.Entry<Key, Value> entry = entries.next();
-				ResidentialUnit unit = null;
-				try {
-					unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
-				} 
-				catch (IOException ex) {
-					java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
-				} 
-				catch (ClassNotFoundException ex) {
-					java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
-				}
-			}
+
+			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"+"<heating>\n\t<id>"+unit.getHeatingID()+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()+"</meter>\n\t<time>"+timestamp.getTime()+"</time>\n<heating>";
+			this.collector.emit(new Values(xml));
+			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
 
 		if (App.getBooleanProperty("realtime")) {
 			try {
-				Thread.sleep((4*1000)/App.getIntegerProperty("timefactor"));// for testing only 4 sec
-				//Thread.sleep((4*900000)/App.getIntegerProperty("timefactor"));//1h
+				Thread.sleep((1000)/App.getIntegerProperty("timefactor"));// for testing only 1 sec
+				//Thread.sleep((900000)/App.getIntegerProperty("timefactor"));//15min
 			} catch (Exception e) {
 				Logger.error(HeatingGenerator.class, e.toString());
 			}
@@ -71,6 +73,6 @@ public class HeatingGenerator extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("water"));
+		declarer.declare(new Fields("heating"));
 	}
 }

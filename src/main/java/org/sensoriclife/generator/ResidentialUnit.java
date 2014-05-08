@@ -94,12 +94,12 @@ public class ResidentialUnit implements Serializable
 		return heatingID;
 	}
 	
-	public int getheatingMeter()
+	public int getHeatingMeter()
 	{
 		return heatingMeter;
 	}
 	
-	public void setheatingMeter(int newValue)
+	public void setHeatingMeter(int newValue)
 	{
 		this.heatingMeter=newValue;
 	}
