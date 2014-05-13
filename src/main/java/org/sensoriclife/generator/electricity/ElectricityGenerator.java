@@ -33,6 +33,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
+	private ElectricityValueGenerator valueGenerator = new ElectricityValueGenerator();
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -58,9 +59,8 @@ public class ElectricityGenerator extends BaseRichSpout {
 				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
 
-			int val = unit.getElectricityMeter() + (int) (unit.getPersons() * 0.2);
-			unit.setElectricityMeter(val);
-
+			unit.setElectricityMeter(valueGenerator.generateNextValue(unit.getElectricityID(), unit.getElectricityMeter(), timestamp, unit.getPersons()));
+			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			
