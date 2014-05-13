@@ -32,6 +32,7 @@ public class WaterGenerator extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
+	private WaterValueGenerator valueGenerator = new WaterValueGenerator();
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -58,6 +59,9 @@ public class WaterGenerator extends BaseRichSpout {
 				catch (IOException | ClassNotFoundException ex) {
 					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
 				}
+				
+				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit.getWaterID(), unit.getColdWaterMeter(), timestamp, unit.getPersons()));
+				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit.getWaterID(), unit.getHotWaterMeter(), timestamp, unit.getPersons()));
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
