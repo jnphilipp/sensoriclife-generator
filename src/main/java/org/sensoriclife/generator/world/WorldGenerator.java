@@ -15,7 +15,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, stefan
- * @version 0.0.4
+ * @version 0.0.5
  */
 public class WorldGenerator extends BaseRichSpout
 {	
@@ -24,8 +24,7 @@ public class WorldGenerator extends BaseRichSpout
 	
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("user", "billing_address", "other_addresses"));
-		declarer.declare(new Fields("electricity_id", "address"));
+		declarer.declare(new Fields("user", "billing_address", "other_addresses", "electricity_id", "water_id", "heating_id"));
 	}
 
 	@Override
@@ -66,10 +65,6 @@ public class WorldGenerator extends BaseRichSpout
 								if(tempUsers > 0)//busy homes
 								{
 									User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
-									//spout
-									if(this.collector!=null)
-										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";")));
-
 									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
@@ -77,7 +72,7 @@ public class WorldGenerator extends BaseRichSpout
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getWaterID(), residentialUnit.getHeatingID() ));
 
 									tempUsers--;
 									totalResidentialUnits--;
@@ -91,7 +86,7 @@ public class WorldGenerator extends BaseRichSpout
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values(residentialUnit.getElectricityID(), residentialUnit.getAddress()));
+										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getWaterID(), residentialUnit.getHeatingID() ));
 
 									totalResidentialUnits--;
 								}
