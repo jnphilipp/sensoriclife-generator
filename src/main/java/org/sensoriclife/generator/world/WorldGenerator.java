@@ -6,7 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import java.io.Serializable;
 import java.util.Map;
 import org.apache.accumulo.core.data.Value;
 import org.sensoriclife.db.Accumulo;
@@ -18,7 +17,7 @@ import org.sensoriclife.util.Helpers;
  * @author paul, stefan
  * @version 0.0.4
  */
-public class WorldGenerator extends BaseRichSpout implements Serializable
+public class WorldGenerator extends BaseRichSpout
 {	
 	private SpoutOutputCollector collector;
 	private boolean worldAlreadyCreated = false;
@@ -41,7 +40,7 @@ public class WorldGenerator extends BaseRichSpout implements Serializable
 			createWorld();
 	}
 	
-	protected void createWorld() {
+	public void createWorld() {
 		int cities = App.getIntegerProperty("cities");
 		int districts = App.getIntegerProperty("districts");
 		int streets = App.getIntegerProperty("streets");

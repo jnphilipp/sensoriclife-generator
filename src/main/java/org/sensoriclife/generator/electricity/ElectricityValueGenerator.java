@@ -1,9 +1,10 @@
 package org.sensoriclife.generator.electricity;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ElectricityValueGenerator {
+public class ElectricityValueGenerator implements Serializable {
 
 	/*
 	 * Idea for later: put a number of electroID in an array and define ids

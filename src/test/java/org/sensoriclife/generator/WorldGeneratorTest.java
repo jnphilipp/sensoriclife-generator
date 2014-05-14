@@ -1,5 +1,9 @@
 package org.sensoriclife.generator;
 
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.utils.Utils;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -12,6 +16,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
+import org.sensoriclife.generator.electricity.ElectricityGenerator;
 import org.sensoriclife.generator.world.WorldGenerator;
 
 /**
@@ -37,7 +42,20 @@ public class WorldGeneratorTest {
 
 		WorldGenerator instance = new WorldGenerator();
 		instance.createWorld();
-
+		
+		TopologyBuilder builder = new TopologyBuilder();
+		builder.setSpout("electricity", new ElectricityGenerator(), 10);
+		
+		Config conf = new Config();
+		conf.setDebug(App.getBooleanProperty("storm.debug"));
+		conf.setNumWorkers(2);
+		
+		LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology("test", conf, builder.createTopology());
+		Utils.sleep(10000);
+		cluster.killTopology("test");
+		cluster.shutdown();
+/*
 		try {
 			Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scannAll("generator_helper_table");
 			int i = 0;
@@ -50,6 +68,6 @@ public class WorldGeneratorTest {
 		}
 		catch ( TableNotFoundException e ) {
 			Logger.error("Error while reading data.", e.toString());
-		}
+		}*/
 	}	
 }

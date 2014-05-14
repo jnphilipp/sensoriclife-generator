@@ -5,13 +5,11 @@ import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
@@ -20,7 +18,6 @@ import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.electricity.ElectricityGenerator;
 import org.sensoriclife.generator.water.WaterGenerator;
 import org.sensoriclife.generator.world.WorldGenerator;
-import org.sensoriclife.util.Helpers;
 
 /**
  * 
@@ -29,16 +26,12 @@ import org.sensoriclife.util.Helpers;
  */
 public class App {
 	/**
-	 * default database configuration file
-	 */
-	private static final String DEFAULT_CONFIGURATION_FILE = Helpers.getUserDir() + "/config/config.properties";
-	/**
 	 * properties
 	 */
 	private static Properties properties;
 
 	public static void main(String[] args) throws AccumuloSecurityException {
-		String configFile = App.DEFAULT_CONFIGURATION_FILE, logFile = "";
+		String logFile = "";
 		boolean world = false, electricity = false, water = false;
 
 		if (args.length != 0) {
@@ -47,10 +40,6 @@ public class App {
 
 			while (it.hasNext()) {
 				switch (it.next()) {
-				case "-conf": {
-					configFile = it.next();
-				}
-					break;
 				case "-log": {
 					logFile = it.next();
 				}
@@ -81,7 +70,7 @@ public class App {
 		else
 			Logger.getInstance();
 
-		App.loadConfig(configFile);
+		App.loadConfig();
 
 		try {
 			if ( App.getProperty("accumulo.name").isEmpty() && App.getProperty("accumulo.zooServers").isEmpty() && App.getProperty("accumulo.user").isEmpty() && App.getProperty("accumulo.password").isEmpty() ){
@@ -107,16 +96,24 @@ public class App {
 		if (water)
 			builder.setSpout("water", new WaterGenerator(), 10);
 	
+		//for test
 		Config conf = new Config();
-		conf.setDebug(true);
+		conf.setDebug(App.getBooleanProperty("storm.debug"));
 		conf.setNumWorkers(2);
+		
+		try {
+			Accumulo.getInstance();
+			Accumulo.getInstance().connect();
+		}
+		catch ( AccumuloException | AccumuloSecurityException e ) {
+			Logger.error("Error while creating mock instance.", e.toString());
+		}
 
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("test", conf, builder.createTopology());
 		Utils.sleep(10000);
 		cluster.killTopology("test");
 		cluster.shutdown();
-
 	}
 
 	/**
@@ -163,21 +160,12 @@ public class App {
 	}
 
 	public static void loadConfig() {
-		App.loadConfig(App.DEFAULT_CONFIGURATION_FILE);
-	}
-
-	public static void loadConfig(String configFile) {
-		if (!new File(configFile).exists()) {
-			System.err.println("The configuration file does not exists.");
-			Logger.error(App.class, "The configuration file does not exists.");
-			System.exit(1);
-		}
-
 		try {
 			App.properties = new Properties();
-			App.properties.load(new FileInputStream(configFile));
-		} catch (IOException e) {
-			Logger.error(App.class, "Error while reading config file.", e.toString());
+			App.properties.load(App.class.getResourceAsStream("/config.properties"));
+		}
+		catch ( IOException e ) {
+			Logger.error("Error while loading config file.", e.toString());
 			System.exit(1);
 		}
 	}

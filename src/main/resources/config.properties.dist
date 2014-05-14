@@ -11,3 +11,6 @@ accumulo.name=NAME
 accumulo.zooServers=SERVERS
 accumulo.user=USER
 accumulo.password=PASSWORD
+
+storm.debug=FALSE
+storm.name=NAME

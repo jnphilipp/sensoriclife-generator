@@ -2,6 +2,7 @@ package org.sensoriclife.generator.world;
 
 import java.io.Serializable;
 
+
 /**
  * 
  * @author paul
