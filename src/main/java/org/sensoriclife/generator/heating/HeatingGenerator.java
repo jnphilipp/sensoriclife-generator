@@ -17,9 +17,9 @@ import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.sensoriclife.Config;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
-import org.sensoriclife.generator.App;
 import org.sensoriclife.generator.world.ResidentialUnit;
 import org.sensoriclife.util.Helpers;
 
@@ -43,8 +43,8 @@ public class HeatingGenerator extends BaseRichSpout {
 	public void nextTuple() {
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
-		} 
+			entries = Accumulo.getInstance().scanAll("generator_helper_table", "public");
+		}
 		catch (TableNotFoundException ex) {
 			java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -69,9 +69,9 @@ public class HeatingGenerator extends BaseRichSpout {
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
 
-		if (App.getBooleanProperty("realtime")) {
+		if ( Config.getBooleanProperty("realtime")) {
 			try {
-				Thread.sleep((1000)/App.getIntegerProperty("timefactor"));// for testing only 1 sec
+				Thread.sleep((1000)/Config.getIntegerProperty("timefactor"));// for testing only 1 sec
 				//Thread.sleep((900000)/App.getIntegerProperty("timefactor"));//15min
 			} catch (Exception e) {
 				Logger.error(HeatingGenerator.class, e.toString());

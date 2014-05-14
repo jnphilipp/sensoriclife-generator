@@ -17,9 +17,9 @@ import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.sensoriclife.Config;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
-import org.sensoriclife.generator.App;
 import org.sensoriclife.generator.world.ResidentialUnit;
 import org.sensoriclife.util.Helpers;
 
@@ -45,8 +45,8 @@ public class WaterGenerator extends BaseRichSpout {
 		{
 			Iterator<Map.Entry<Key, Value>> entries = null;
 			try {
-				entries = Accumulo.getInstance().scannAll("generator_helper_table", "public");
-			} 
+				entries = Accumulo.getInstance().scanAll("generator_helper_table", "public");
+			}
 			catch (TableNotFoundException ex) {
 				java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
@@ -72,9 +72,9 @@ public class WaterGenerator extends BaseRichSpout {
 			}
 		}
 
-		if (App.getBooleanProperty("realtime")) {
+		if (Config.getBooleanProperty("realtime")) {
 			try {
-				Thread.sleep((4*1000)/App.getIntegerProperty("timefactor"));// for testing only 4 sec
+				Thread.sleep((4*1000)/Config.getIntegerProperty("timefactor"));// for testing only 4 sec
 				//Thread.sleep((4*900000)/App.getIntegerProperty("timefactor"));//1h
 			} catch (Exception e) {
 				Logger.error(WaterGenerator.class, e.toString());

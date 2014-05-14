@@ -8,8 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
@@ -25,11 +26,6 @@ import org.sensoriclife.generator.world.WorldGenerator;
  * @version 0.0.4
  */
 public class App {
-	/**
-	 * properties
-	 */
-	private static Properties properties;
-
 	public static void main(String[] args) throws AccumuloSecurityException {
 		String logFile = "";
 		boolean world = false, electricity = false, water = false;
@@ -70,15 +66,19 @@ public class App {
 		else
 			Logger.getInstance();
 
-		App.loadConfig();
+		Map<String, String> defaults = new LinkedHashMap<>();
+		defaults.put("realtime", "true");
+		defaults.put("storm.debug", "false");
+		org.sensoriclife.Config.getInstance();
+		org.sensoriclife.Config.getInstance().setDefaults(defaults);
 
 		try {
-			if ( App.getProperty("accumulo.name").isEmpty() && App.getProperty("accumulo.zooServers").isEmpty() && App.getProperty("accumulo.user").isEmpty() && App.getProperty("accumulo.password").isEmpty() ){
+			if ( org.sensoriclife.Config.getProperty("accumulo.name").isEmpty() && org.sensoriclife.Config.getProperty("accumulo.zooServers").isEmpty() && org.sensoriclife.Config.getProperty("accumulo.user").isEmpty() && org.sensoriclife.Config.getProperty("accumulo.password").isEmpty() ){
 				Accumulo.getInstance().connect();
 				Accumulo.getInstance().createTable("generator_helper_table");
 			}
 			else
-				Accumulo.getInstance().connect(App.getProperty("accumulo.name"), App.getProperty("accumulo.zooServers"), App.getProperty("accumulo.user"), App.getProperty("accumulo.password"));
+				Accumulo.getInstance().connect(org.sensoriclife.Config.getProperty("accumulo.name"), org.sensoriclife.Config.getProperty("accumulo.zooServers"), org.sensoriclife.Config.getProperty("accumulo.user"), org.sensoriclife.Config.getProperty("accumulo.password"));
 		}
 		catch ( AccumuloException e ) {
 			Logger.error("Error while connecting to accumulo.", e.toString());
@@ -98,7 +98,7 @@ public class App {
 	
 		//for test
 		Config conf = new Config();
-		conf.setDebug(App.getBooleanProperty("storm.debug"));
+		conf.setDebug(org.sensoriclife.Config.getBooleanProperty("storm.debug"));
 		conf.setNumWorkers(2);
 		
 		try {
@@ -114,59 +114,5 @@ public class App {
 		Utils.sleep(10000);
 		cluster.killTopology("test");
 		cluster.shutdown();
-	}
-
-	/**
-	 * @return the properties
-	 */
-	public static Properties getProperties() {
-		return App.properties;
-	}
-
-	/**
-	 * @param key
-	 *            key
-	 * @return values of the given key
-	 */
-	public static String getProperty(String key) {
-		switch (key) {
-		case "realtime":
-			return App.properties.getProperty(key, "true");
-		default:
-			return App.properties.getProperty(key, "");
-		}
-	}
-
-	/**
-	 * Returns the value of the given key as boolean;
-	 * 
-	 * @param key
-	 *            key
-	 * @return <code>true</code> or <code>false</code>
-	 */
-	public static boolean getBooleanProperty(String key) {
-		return Boolean.valueOf(App.getProperty(key));
-	}
-
-	/**
-	 * Returns the value of the given key as integer.
-	 * 
-	 * @param key
-	 *            key
-	 * @return integer value
-	 */
-	public static int getIntegerProperty(String key) {
-		return Integer.parseInt(App.getProperty(key));
-	}
-
-	public static void loadConfig() {
-		try {
-			App.properties = new Properties();
-			App.properties.load(App.class.getResourceAsStream("/config.properties"));
-		}
-		catch ( IOException e ) {
-			Logger.error("Error while loading config file.", e.toString());
-			System.exit(1);
-		}
 	}
 }

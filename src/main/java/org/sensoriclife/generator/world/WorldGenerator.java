@@ -8,8 +8,8 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.util.Map;
 import org.apache.accumulo.core.data.Value;
+import org.sensoriclife.Config;
 import org.sensoriclife.db.Accumulo;
-import org.sensoriclife.generator.App;
 import org.sensoriclife.util.Helpers;
 
 /**
@@ -29,7 +29,7 @@ public class WorldGenerator extends BaseRichSpout
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-		this.collector = collector;		
+		this.collector = collector;
 	}
 
 	@Override
@@ -40,12 +40,12 @@ public class WorldGenerator extends BaseRichSpout
 	}
 	
 	public void createWorld() {
-		int cities = App.getIntegerProperty("cities");
-		int districts = App.getIntegerProperty("districts");
-		int streets = App.getIntegerProperty("streets");
-		int buildings = App.getIntegerProperty("buildings");
-		int residentialUnits = App.getIntegerProperty("residentialUnits");
-		int users = App.getIntegerProperty("users");
+		int cities = Config.getIntegerProperty("cities");
+		int districts = Config.getIntegerProperty("districts");
+		int streets = Config.getIntegerProperty("streets");
+		int buildings = Config.getIntegerProperty("buildings");
+		int residentialUnits = Config.getIntegerProperty("residentialUnits");
+		int users = Config.getIntegerProperty("users");
 
 		try{
 			int rowid = 1;

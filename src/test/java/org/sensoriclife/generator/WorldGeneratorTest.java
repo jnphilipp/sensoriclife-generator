@@ -4,15 +4,12 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
-import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
-import static org.junit.Assert.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
@@ -29,7 +26,10 @@ public class WorldGeneratorTest {
 	 */
 	@Test
 	public void testCeateWorld() {
-		App.loadConfig();
+		Map<String, String> defaults = new LinkedHashMap<>();
+		defaults.put("realtime", "true");
+		defaults.put("storm.debug", "false");
+		org.sensoriclife.Config.getInstance().setDefaults(defaults);
 
 		try {
 			Accumulo.getInstance().connect();
@@ -47,7 +47,7 @@ public class WorldGeneratorTest {
 		builder.setSpout("electricity", new ElectricityGenerator(), 10);
 		
 		Config conf = new Config();
-		conf.setDebug(App.getBooleanProperty("storm.debug"));
+		conf.setDebug(org.sensoriclife.Config.getBooleanProperty("storm.debug"));
 		conf.setNumWorkers(2);
 		
 		LocalCluster cluster = new LocalCluster();
