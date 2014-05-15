@@ -26,7 +26,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class WaterGenerator extends BaseRichSpout {
 
@@ -60,14 +60,14 @@ public class WaterGenerator extends BaseRichSpout {
 					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
 				}
 				
-				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit.getWaterID(), unit.getColdWaterMeter(), timestamp, unit.getPersons()));
-				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit.getWaterID(), unit.getHotWaterMeter(), timestamp, unit.getPersons()));
+				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit.getColdWaterID(), unit.getColdWaterMeter(), timestamp, unit.getPersons()));
+				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit.getHotWaterID(), unit.getHotWaterMeter(), timestamp, unit.getPersons()));
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 				String formattedTime = sdf.format(new Date(timestamp.getTime()));
 				
-				this.collector.emit(new Values(unit.getWaterID(), formattedTime , unit.getHotWaterMeter(), unit.getColdWaterMeter()));
+				this.collector.emit(new Values(unit.getHotWaterID(), unit.getColdWaterID(), formattedTime , unit.getHotWaterMeter(), unit.getColdWaterMeter()));
 				timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
 		}
@@ -84,6 +84,6 @@ public class WaterGenerator extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("id", "time", "hotWaterMeter", "coldWaterMeter"));
+		declarer.declare(new Fields("hotwater_id", "coldwater_id", "hotWaterMeter", "coldWaterMeter", "time"));
 	}
 }

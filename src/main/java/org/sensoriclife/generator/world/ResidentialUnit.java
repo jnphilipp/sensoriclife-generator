@@ -6,13 +6,14 @@ import java.io.Serializable;
 /**
  * 
  * @author paul
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class ResidentialUnit implements Serializable
 {
   	private int electricityID;
   	private int electricityMeter;
-		private int waterID;
+		private int hotWaterID;
+		private int coldWaterID;
   	private int hotWaterMeter;
 		private int coldWaterMeter;
 		private int heatingID;
@@ -21,10 +22,11 @@ public class ResidentialUnit implements Serializable
 		private int persons;
 		private int squareMeter;//not use for electricity, but later
 	
-	ResidentialUnit(int electricityID, int waterID, int heatingID, String address, int persons)
+	ResidentialUnit(int electricityID, int hotWaterID, int coldWaterID, int heatingID, String address, int persons)
 	{
 		this.electricityID = electricityID;
-		this.waterID = waterID;
+		this.hotWaterID = hotWaterID;
+		this.coldWaterID = coldWaterID;
 		this.heatingID = heatingID;
 		this.electricityMeter = 0;
 		this.hotWaterMeter = 0;
@@ -65,9 +67,14 @@ public class ResidentialUnit implements Serializable
 		return squareMeter;
 	}	
 	
-	public int getWaterID()
+	public int getHotWaterID()
 	{
-		return waterID;
+		return hotWaterID;
+	}
+	
+	public int getColdWaterID()
+	{
+		return coldWaterID;
 	}
 	
 	public int getHotWaterMeter()

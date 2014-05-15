@@ -15,7 +15,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, stefan
- * @version 0.0.5
+ * @version 0.0.6
  */
 public class WorldGenerator extends BaseRichSpout
 {	
@@ -24,7 +24,7 @@ public class WorldGenerator extends BaseRichSpout
 	
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("user", "billing_address", "other_addresses", "electricity_id", "water_id", "heating_id"));
+		declarer.declare(new Fields("user", "billing_address", "other_addresses", "electricity_id", "hotwater_id","coldwater_id", "heating_id"));
 	}
 
 	@Override
@@ -64,29 +64,31 @@ public class WorldGenerator extends BaseRichSpout
 							{
 								if(tempUsers > 0)//busy homes
 								{
+									if((Math.random() * 1000 + 1)==1)//one person have more than one residential unit
+										tempUsers++;
 									User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
 									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getWaterID(), residentialUnit.getHeatingID() ));
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
 
 									tempUsers--;
 									totalResidentialUnits--;
 								}
 								else//empty flats
 								{
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
 									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getWaterID(), residentialUnit.getHeatingID() ));
+										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
 
 									totalResidentialUnits--;
 								}
