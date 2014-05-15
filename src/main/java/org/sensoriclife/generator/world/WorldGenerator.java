@@ -14,8 +14,8 @@ import org.sensoriclife.util.Helpers;
 
 /**
  * 
- * @author paul, stefan
- * @version 0.0.6
+ * @author paul, stefan, jnphilipp
+ * @version 0.0.7
  */
 public class WorldGenerator extends BaseRichSpout
 {	
@@ -24,7 +24,7 @@ public class WorldGenerator extends BaseRichSpout
 	
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("user", "billing_address", "other_addresses", "electricity_id", "hotwater_id","coldwater_id", "heating_id"));
+		declarer.declare(new Fields("user", "billing_address", "other_addresses", "electricity_id", "hotwater_id","coldwater_id", "heating_ids"));
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class WorldGenerator extends BaseRichSpout
 										rowid++;
 										user.addAddress(c+"-"+d+"-"+s+"-"+b+"-"+r);
 										if(this.collector!=null)
-											this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
+											this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
 										if(r<residentialUnits)
 											r++;
 										else if(b<buildings)
@@ -106,7 +106,7 @@ public class WorldGenerator extends BaseRichSpout
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
 
 									tempUsers--;
 									totalResidentialUnits--;
@@ -126,7 +126,7 @@ public class WorldGenerator extends BaseRichSpout
 									rowid++;
 									//spout
 									if(this.collector!=null)
-										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
+										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
 
 									totalResidentialUnits--;
 								}

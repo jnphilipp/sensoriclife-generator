@@ -58,16 +58,16 @@ public class HeatingGenerator extends BaseRichSpout {
 				java.util.logging.Logger.getLogger(HeatingGenerator.class.getName()).log(Level.SEVERE, null, ex);
 			}
 			
-			unit.setHeatingMeter(valueGenerator.generateNextValue(unit.getHeatingID(), unit.getHeatingMeter(), timestamp));
+			unit.setHeatingMeters(valueGenerator.generateNextValue(unit.getHeatingIDs(), unit.getHeatingMeters(), timestamp));
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String formattedTime = sdf.format(new Date(timestamp.getTime()));
 			
 			String xml="<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\" ?>\\n\"+\"<heating>\\n\\t";
-			for(int i=0;i<unit.getHeatingID().length;i++)
+			for(int i=0;i<unit.getHeatingIDs().length;i++)
 			{
-				xml = xml + "<id>"+unit.getHeatingID()[i]+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()[i]+"</meter>\n\t";
+				xml = xml + "<id>"+unit.getHeatingIDs()[i]+"</id>\n\t"+"<meter>"+unit.getHeatingMeters()[i]+"</meter>\n\t";
 			}
 			xml = xml + "<time>"+ formattedTime +"</time>\n<heating>";
 			this.collector.emit(new Values(xml));
