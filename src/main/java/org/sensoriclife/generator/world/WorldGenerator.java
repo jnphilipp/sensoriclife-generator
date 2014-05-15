@@ -64,10 +64,42 @@ public class WorldGenerator extends BaseRichSpout
 							{
 								if(tempUsers > 0)//busy homes
 								{
-									if((Math.random() * 1000 + 1)==1)//one person have more than one residential unit
-										tempUsers++;
 									User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
+									if((int)(Math.random() * 1000 + 1)==1)//one person have more than one residential unit
+									{
+										int heatingNumber = (int)Math.random() * 10 + 1;
+										int heating[]=null;
+										for(int i=0;i<heatingNumber;i++)
+										{
+											heating[i] = totalResidentialUnits+i;
+										}
+										ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heating, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
+										//accumulo
+										Value value = new Value(Helpers.toByteArray(residentialUnit));
+										Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+										rowid++;
+										user.addAddress(c+"-"+d+"-"+s+"-"+b+"-"+r);
+										if(this.collector!=null)
+											this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingID() ));
+										if(r<residentialUnits)
+											r++;
+										else if(b<buildings)
+											b++;
+										else if(s<streets)
+											s++;
+										else if(d<districts)
+											d++;
+										else if(c<cities)
+											c++;
+										totalResidentialUnits--;
+									}
+									int heatingNumber = (int)Math.random() * 10 + 1;
+									int heating[]=null;
+									for(int i=0;i<heatingNumber;i++)
+									{
+										heating[i] = totalResidentialUnits+i;
+									}
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heating, c+"-"+d+"-"+s+"-"+b+"-"+r, (int) (Math.random()*20+1));
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
 									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
@@ -81,7 +113,13 @@ public class WorldGenerator extends BaseRichSpout
 								}
 								else//empty flats
 								{
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,totalResidentialUnits, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									int heatingNumber = (int)Math.random() * 10 + 1;
+									int heating[]=null;
+									for(int i=0;i<heatingNumber;i++)
+									{
+										heating[i] = totalResidentialUnits+i;
+									}
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,heating, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
 									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);

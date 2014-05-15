@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * 
  * @author paul
- * @version 0.0.4
+ * @version 0.0.5
  */
 public class ResidentialUnit implements Serializable
 {
@@ -16,13 +16,13 @@ public class ResidentialUnit implements Serializable
 		private int coldWaterID;
   	private int hotWaterMeter;
 		private int coldWaterMeter;
-		private int heatingID;
-  	private int heatingMeter;
+		private int[] heatingID;
+  	private int[] heatingMeter;
 		private String address;
 		private int persons;
 		private int squareMeter;//not use for electricity, but later
 	
-	ResidentialUnit(int electricityID, int hotWaterID, int coldWaterID, int heatingID, String address, int persons)
+	ResidentialUnit(int electricityID, int hotWaterID, int coldWaterID, int[] heatingID, String address, int persons)
 	{
 		this.electricityID = electricityID;
 		this.hotWaterID = hotWaterID;
@@ -31,7 +31,10 @@ public class ResidentialUnit implements Serializable
 		this.electricityMeter = 0;
 		this.hotWaterMeter = 0;
 		this.coldWaterMeter = 0;
-		this.heatingMeter = 0;
+		for(int i=0;i<this.heatingID.length;i++)
+		{
+			this.heatingMeter[i]=0;
+		}
 		this.address = address;	
 		this.persons = persons;
 		this.squareMeter = this.persons+1*25;
@@ -97,17 +100,17 @@ public class ResidentialUnit implements Serializable
 		this.coldWaterMeter=newValue;
 	}
 	
-	public int getHeatingID()
+	public int[] getHeatingID()
 	{
 		return heatingID;
 	}
 	
-	public int getHeatingMeter()
+	public int[] getHeatingMeter()
 	{
 		return heatingMeter;
 	}
 	
-	public void setHeatingMeter(int newValue)
+	public void setHeatingMeter(int[] newValue)
 	{
 		this.heatingMeter=newValue;
 	}

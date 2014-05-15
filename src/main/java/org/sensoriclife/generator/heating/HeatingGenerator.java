@@ -26,7 +26,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class HeatingGenerator extends BaseRichSpout {
 
@@ -64,7 +64,12 @@ public class HeatingGenerator extends BaseRichSpout {
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String formattedTime = sdf.format(new Date(timestamp.getTime()));
 			
-			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"+"<heating>\n\t<id>"+unit.getHeatingID()+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()+"</meter>\n\t<time>"+ formattedTime +"</time>\n<heating>";
+			String xml="<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" standalone=\\\"no\\\" ?>\\n\"+\"<heating>\\n\\t";
+			for(int i=0;i<unit.getHeatingID().length;i++)
+			{
+				xml = xml + "<id>"+unit.getHeatingID()[i]+"</id>\n\t"+"<meter>"+unit.getHeatingMeter()[i]+"</meter>\n\t";
+			}
+			xml = xml + "<time>"+ formattedTime +"</time>\n<heating>";
 			this.collector.emit(new Values(xml));
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}

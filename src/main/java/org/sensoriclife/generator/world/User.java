@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 
  * @author paul
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class User implements Serializable
 {
@@ -33,6 +33,11 @@ public class User implements Serializable
 	public String getName()
 	{
 		return this.name;
+	}
+	
+	public void addAddress(String value)
+	{
+		this.address.add(value);
 	}
 	
 	public ArrayList<String> getAddresses()

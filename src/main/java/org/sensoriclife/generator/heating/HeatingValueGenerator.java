@@ -3,12 +3,17 @@ package org.sensoriclife.generator.heating;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * 
+ * @author stefan
+ * @version 0.0.2
+ */
 public class HeatingValueGenerator {
 	/*
 	 * Idea for later: put a number of heatingID in an array and define ids
 	 * which are in an office. For those, other calculations will call.
 	 */
-	public int generateNextValue(int heatingID, int heatingMeter, Date timestamp) {
+	public int[] generateNextValue(int heatingID[], int heatingMeter[], Date timestamp) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(timestamp);
 
@@ -21,7 +26,11 @@ public class HeatingValueGenerator {
 		else
 			consumption *= getFactorForWorkingDay(calendar);
 
-		return heatingMeter + consumption;
+		for(int i=0; i<heatingMeter.length;i++)
+		{
+			heatingMeter[i]=heatingMeter[i]+ consumption;
+		}
+		return heatingMeter;
 	}
 
 	/*
