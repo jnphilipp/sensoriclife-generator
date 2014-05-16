@@ -68,6 +68,7 @@ public class WaterGenerator extends BaseRichSpout {
 				String formattedTime = sdf.format(new Date(timestamp.getTime()));
 				
 				this.collector.emit(new Values(unit.getHotWaterID(), unit.getColdWaterID(), formattedTime , unit.getHotWaterMeter(), unit.getColdWaterMeter()));
+				this.collector.emit("", null);
 				timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
 		}
@@ -84,6 +85,7 @@ public class WaterGenerator extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("hotwater_id", "coldwater_id", "hotWaterMeter", "coldWaterMeter", "time"));
+		declarer.declareStream("hotwater", new Fields("hotwater_id", "hotWaterMeter", "time"));
+		declarer.declareStream("coldwater", new Fields("coldwater_id", "coldWaterMeter", "time"));
 	}
 }
