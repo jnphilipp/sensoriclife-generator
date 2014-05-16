@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -26,11 +25,10 @@ import org.sensoriclife.util.Helpers;
 
 /**
  * 
- * @author paul, stefan
- * @version 0.0.4
+ * @author paul, stefan, jnphilipp
+ * @version 0.0.5
  */
 public class ElectricityGenerator extends BaseRichSpout {
-
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
 	private ElectricityValueGenerator valueGenerator = new ElectricityValueGenerator();
@@ -42,21 +40,26 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
+		Logger.debug(ElectricityGenerator.class, "Generating next heating values.");
+
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
 			entries = Accumulo.getInstance().scanAll("generator_helper_table", "public");
 		}
-		catch (TableNotFoundException ex) {
-			java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
+		catch ( TableNotFoundException e ) {
+			Logger.error(ElectricityGenerator.class, "Error while reading data from generator_helper_table.", e.toString());
+			return;
 		}
+
 		while ( entries.hasNext() ) {
 			Map.Entry<Key, Value> entry = entries.next();
-			ResidentialUnit unit = null;
+			ResidentialUnit unit;
 			try {
 				unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
 			} 
-			catch (IOException | ClassNotFoundException ex) {
-				java.util.logging.Logger.getLogger(ElectricityGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			catch ( IOException | ClassNotFoundException e ) {
+				Logger.error(ElectricityGenerator.class, "Error while converting byte array to object.", e.toString());
+				continue;
 			}
 
 			unit.setElectricityMeter(valueGenerator.generateNextValue(unit.getElectricityID(), unit.getElectricityMeter(), timestamp, unit.getPersons()));
@@ -73,11 +76,12 @@ public class ElectricityGenerator extends BaseRichSpout {
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
 
-		if ( Config.getBooleanProperty("realtime")) {
+		if ( Config.getBooleanProperty("generator.realtime")) {
 			try {
-				Thread.sleep(1000/Config.getIntegerProperty("timefactor"));// for testing only 1 sec
+				Thread.sleep(1000/Config.getIntegerProperty("generator.timefactor"));// for testing only 1 sec
 				//Thread.sleep(900000/App.getIntegerProperty("timefactor"));
-			} catch (Exception e) {
+			}
+			catch ( InterruptedException e ) {
 				Logger.error(ElectricityGenerator.class, e.toString());
 			}
 		}

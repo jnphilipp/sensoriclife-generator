@@ -4,12 +4,11 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.junit.Test;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
@@ -27,7 +26,7 @@ public class WorldGeneratorTest {
 	@Test
 	public void testCeateWorld() {
 		Map<String, String> defaults = new LinkedHashMap<>();
-		defaults.put("realtime", "true");
+		defaults.put("generator.realtime", "true");
 		defaults.put("storm.debug", "false");
 		org.sensoriclife.Config.getInstance().setDefaults(defaults);
 

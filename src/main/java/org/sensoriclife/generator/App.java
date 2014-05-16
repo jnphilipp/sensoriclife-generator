@@ -67,7 +67,7 @@ public class App {
 			Logger.getInstance();
 
 		Map<String, String> defaults = new LinkedHashMap<>();
-		defaults.put("realtime", "true");
+		defaults.put("generator.realtime", "true");
 		defaults.put("storm.debug", "false");
 		org.sensoriclife.Config.getInstance();
 		org.sensoriclife.Config.getInstance().setDefaults(defaults);

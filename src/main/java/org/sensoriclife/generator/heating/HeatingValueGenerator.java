@@ -1,14 +1,15 @@
 package org.sensoriclife.generator.heating;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
  * 
- * @author stefan
- * @version 0.0.2
+ * @author stefan, jnphilipp
+ * @version 0.0.3
  */
-public class HeatingValueGenerator {
+public class HeatingValueGenerator implements Serializable {
 	/*
 	 * Idea for later: put a number of heatingID in an array and define ids
 	 * which are in an office. For those, other calculations will call.

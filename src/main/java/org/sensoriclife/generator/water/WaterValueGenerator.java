@@ -1,9 +1,15 @@
 package org.sensoriclife.generator.water;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public class WaterValueGenerator {
+/**
+ * 
+ * @author jnphilipp
+ * @version 0.0.2
+ */
+public class WaterValueGenerator implements Serializable {
 	/*
 	 * Idea for later: put a number of waterId in an array and define ids
 	 * which are in an office. For those, other calculations will call.

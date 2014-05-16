@@ -12,8 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
-import java.util.logging.Level;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -25,11 +25,10 @@ import org.sensoriclife.util.Helpers;
 
 /**
  * 
- * @author paul
- * @version 0.0.4
+ * @author paul, jnphilipp
+ * @version 0.0.5
  */
 public class WaterGenerator extends BaseRichSpout {
-
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
 	private WaterValueGenerator valueGenerator = new WaterValueGenerator();
@@ -41,23 +40,28 @@ public class WaterGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		for(int i=0;i<4;i++)//4x15min
-		{
-			Iterator<Map.Entry<Key, Value>> entries = null;
+		Logger.debug(WaterGenerator.class, "Generating next water values.");
+
+		for ( int i = 0; i < 4; i++ ) {//4x15min
+			Iterator<Entry<Key, Value>> entries = null;
 			try {
 				entries = Accumulo.getInstance().scanAll("generator_helper_table", "public");
 			}
-			catch (TableNotFoundException ex) {
-				java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			catch ( TableNotFoundException e ) {
+				Logger.error(WaterGenerator.class, "Error while reading data from generator_helper_table.", e.toString());
+				break;
 			}
+
 			while ( entries.hasNext() ) {
-				Map.Entry<Key, Value> entry = entries.next();
-				ResidentialUnit unit = null;
+				Entry<Key, Value> entry = entries.next();
+				ResidentialUnit unit;
+
 				try {
-					unit = (ResidentialUnit) Helpers.toObject(entry.getValue().get());
+					unit = (ResidentialUnit)Helpers.toObject(entry.getValue().get());
 				} 
-				catch (IOException | ClassNotFoundException ex) {
-					java.util.logging.Logger.getLogger(WaterGenerator.class.getName()).log(Level.SEVERE, null, ex);
+				catch ( IOException | ClassNotFoundException e ) {
+					Logger.error(WaterGenerator.class, "Error while converting byte array to object.", e.toString());
+					continue;
 				}
 				
 				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit.getColdWaterID(), unit.getColdWaterMeter(), timestamp, unit.getPersons()));
@@ -73,11 +77,12 @@ public class WaterGenerator extends BaseRichSpout {
 			}
 		}
 
-		if (Config.getBooleanProperty("realtime")) {
+		if ( Config.getBooleanProperty("generator.realtime") ) {
 			try {
-				Thread.sleep((4*1000)/Config.getIntegerProperty("timefactor"));// for testing only 4 sec
+				Thread.sleep((4*1000)/Config.getIntegerProperty("generator.timefactor"));// for testing only 4 sec
 				//Thread.sleep((4*900000)/App.getIntegerProperty("timefactor"));//1h
-			} catch (Exception e) {
+			}
+			catch ( InterruptedException e ) {
 				Logger.error(WaterGenerator.class, e.toString());
 			}
 		}
