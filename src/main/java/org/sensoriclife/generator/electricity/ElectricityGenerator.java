@@ -62,7 +62,7 @@ public class ElectricityGenerator extends BaseRichSpout {
 				continue;
 			}
 
-			unit.setElectricityMeter(valueGenerator.generateNextValue(unit.getElectricityID(), unit.getElectricityMeter(), timestamp, unit.getPersons()));
+			unit.setElectricityMeter(valueGenerator.generateNextValue(unit, timestamp));
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));

@@ -64,8 +64,8 @@ public class WaterGenerator extends BaseRichSpout {
 					continue;
 				}
 				
-				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit.getColdWaterID(), unit.getColdWaterMeter(), timestamp, unit.getPersons()));
-				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit.getHotWaterID(), unit.getHotWaterMeter(), timestamp, unit.getPersons()));
+				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit, timestamp, WaterType.COLD));
+				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit, timestamp, WaterType.WARM));
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.sensoriclife.generator.world.ResidentialUnit;
+
 /**
  * 
  * @author stefan, jnphilipp
@@ -14,12 +16,13 @@ public class HeatingValueGenerator implements Serializable {
 	 * Idea for later: put a number of heatingID in an array and define ids
 	 * which are in an office. For those, other calculations will call.
 	 */
-	public int[] generateNextValue(int heatingID[], int heatingMeter[], Date timestamp) {
+	public int[] generateNextValue(ResidentialUnit unit, Date timestamp) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(timestamp);
 
 		int consumption = 100;
 		consumption *= getFactorForMonth(calendar);
+		consumption *= getFactorForArea(unit.getSquareMeter());
 
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 		if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY)
@@ -27,11 +30,10 @@ public class HeatingValueGenerator implements Serializable {
 		else
 			consumption *= getFactorForWorkingDay(calendar);
 
-		for(int i=0; i<heatingMeter.length;i++)
-		{
-			heatingMeter[i]=heatingMeter[i]+ consumption;
-		}
-		return heatingMeter;
+		int[] heatingMeters = unit.getHeatingMeters();
+		for (int heatingMeter : heatingMeters)
+			heatingMeter += consumption;
+		return heatingMeters;
 	}
 
 	/*
@@ -100,6 +102,18 @@ public class HeatingValueGenerator implements Serializable {
 			return generateValueInRange(0.8, 1.0);
 		else
 			return generateValueInRange(0.0, 0.4);
+	}
+	
+	/*
+	 * calculates percentage consumption for the area of the unit.
+	 * 10sm = 1
+	 * 50sm = 1,7
+	 * 100qm = 2
+	 */	
+	private double getFactorForArea(int squareMeter) {
+		if (squareMeter < 1) 
+			return 0;
+		return Math.log(squareMeter);
 	}
 
 	private double generateValueInRange(double min, double max) {

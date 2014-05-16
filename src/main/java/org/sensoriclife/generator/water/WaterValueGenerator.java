@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.sensoriclife.generator.world.ResidentialUnit;
+
 /**
  * 
  * @author jnphilipp
@@ -11,26 +13,29 @@ import java.util.Date;
  */
 public class WaterValueGenerator implements Serializable {
 	/*
-	 * Idea for later: put a number of waterId in an array and define ids
-	 * which are in an office. For those, other calculations will call.
+	 * Idea for later: put a number of waterId in an array and define ids which
+	 * are in an office. For those, other calculations will call.
 	 */
-	public int generateNextValue(int waterID, int waterMeter, Date timestamp, int persons) {
+	public int generateNextValue(ResidentialUnit unit, Date timestamp, WaterType type) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(timestamp);
 
 		int consumption = 10;
-		
-		consumption *= getFactorForPersons(persons); 
-				
+
+		consumption *= getFactorForPersons(unit.getPersons());
+		consumption *= getFactorForArea(unit.getSquareMeter());
+
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 		if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY)
 			consumption *= getFactorForWeekendDay(calendar);
 		else
 			consumption *= getFactorForWorkingDay(calendar);
 
-		return waterMeter + consumption;
+		if (type == WaterType.COLD)
+			return unit.getColdWaterMeter() + consumption;
+		else
+			return unit.getHotWaterMeter() + consumption;
 	}
-
 
 	/*
 	 * calculates percentage consumption for the given time at a weekend day
@@ -72,13 +77,26 @@ public class WaterValueGenerator implements Serializable {
 		else
 			return generateValueInRange(0.0, 0.4);
 	}
-	
+
 	/*
-	 * calculates percentage consumption for the given number of persons 
-	 * right now, its a really simple implementation and will multiply the consumption by the number of persons
+	 * calculates percentage consumption for the given number of persons right
+	 * now, its a really simple implementation and will multiply the consumption
+	 * by the number of persons
 	 */
 	private double getFactorForPersons(int persons) {
 		return persons;
+	}
+	
+	/*
+	 * calculates percentage consumption for the area of the unit.
+	 * 10sm = 1.02
+	 * 50sm = 1.1
+	 * 100qm = 1.2
+	 */	
+	private double getFactorForArea(int squareMeter) {
+		if (squareMeter < 1) 
+			return 0;
+		return 1 + (squareMeter / 500);
 	}
 
 	private double generateValueInRange(double min, double max) {

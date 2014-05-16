@@ -4,19 +4,22 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.sensoriclife.generator.world.ResidentialUnit;
+
 public class ElectricityValueGenerator implements Serializable {
 
 	/*
 	 * Idea for later: put a number of electroID in an array and define ids
 	 * which are in an office. For those, other calculations will call.
 	 */
-	public int generateNextValue(int eID, int eMeter, Date timestamp, int persons) {
+	public int generateNextValue(ResidentialUnit unit, Date timestamp) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(timestamp);
 
 		int consumption = 100;
 		consumption *= getFactorForMonth(calendar);
-		consumption *= getFactorForPersons(persons);
+		consumption *= getFactorForPersons(unit.getPersons());
+		consumption *= getFactorForArea(unit.getSquareMeter());
 
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
 		if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY)
@@ -24,7 +27,7 @@ public class ElectricityValueGenerator implements Serializable {
 		else
 			consumption *= getFactorForWorkingDay(calendar);
 
-		return eMeter + consumption;
+		return unit.getElectricityMeter() + consumption;
 	}
 
 	/*
@@ -97,13 +100,25 @@ public class ElectricityValueGenerator implements Serializable {
 	}
 
 	/*
-	 * calculates percentage consumption for the given number of persons.
-	 * Two persons need more energy than one but not by factor 2...
+	 * calculates percentage consumption for the given number of persons. Two
+	 * persons need more energy than one but not by factor 2...
 	 */
 	private double getFactorForPersons(int persons) {
 		if (persons < 1)
 			return 0;
 		return 1 + Math.log(persons);
+	}
+	
+	/*
+	 * calculates percentage consumption for the area of the unit.
+	 * 10sm = 1.02
+	 * 50sm = 1.1
+	 * 100qm = 1.2
+	 */	
+	private double getFactorForArea(int squareMeter) {
+		if (squareMeter < 1) 
+			return 0;
+		return 1 + (squareMeter / 500);
 	}
 
 	private double generateValueInRange(double min, double max) {

@@ -62,8 +62,7 @@ public class HeatingGenerator extends BaseRichSpout {
 				continue;
 			}
 			
-			unit.setHeatingMeters(valueGenerator.generateNextValue(unit.getHeatingIDs(), unit.getHeatingMeters(), timestamp));
-			
+			unit.setHeatingMeters(valueGenerator.generateNextValue(unit, timestamp));			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String formattedTime = sdf.format(new Date(timestamp.getTime()));
