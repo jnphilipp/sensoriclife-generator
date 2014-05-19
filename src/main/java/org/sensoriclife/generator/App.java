@@ -17,6 +17,7 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.electricity.ElectricityGenerator;
+import org.sensoriclife.generator.heating.HeatingGenerator;
 import org.sensoriclife.generator.water.WaterGenerator;
 import org.sensoriclife.generator.world.WorldGenerator;
 
@@ -28,7 +29,7 @@ import org.sensoriclife.generator.world.WorldGenerator;
 public class App {
 	public static void main(String[] args) throws AccumuloSecurityException {
 		String logFile = "";
-		boolean world = false, electricity = false, water = false;
+		boolean world = false, electricity = false, water = false, heating = false;
 
 		if (args.length != 0) {
 			List<String> l = Arrays.asList(args);
@@ -50,6 +51,9 @@ public class App {
 					break;
 				case "water": {
 					water = true;
+				}
+				case "heating": {
+					heating = true;
 				}
 					break;
 				}
@@ -95,6 +99,8 @@ public class App {
 			builder.setSpout("electricity", new ElectricityGenerator(), 10);
 		if (water)
 			builder.setSpout("water", new WaterGenerator(), 10);
+		if (heating)
+			builder.setSpout("heating", new HeatingGenerator(), 10);
 	
 		//for test
 		Config conf = new Config();
