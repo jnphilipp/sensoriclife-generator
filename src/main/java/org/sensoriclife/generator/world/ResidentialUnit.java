@@ -6,23 +6,22 @@ import java.io.Serializable;
 /**
  * 
  * @author paul jnphilipp
- * @version 0.0.6
+ * @version 0.1.0
  */
-public class ResidentialUnit implements Serializable
-{
-  	private int electricityID;
-  	private int electricityMeter;
-		private int hotWaterID;
-		private int coldWaterID;
-  	private int hotWaterMeter;
-		private int coldWaterMeter;
-		private int[] heatingIDs;
-  	private int[] heatingMeters;
-		private String address;
-		private int persons;
-		private int squareMeter;//not use for electricity, but later
-	
-	ResidentialUnit(int electricityID, int hotWaterID, int coldWaterID, int[] heatingID, String address, int persons) {
+public class ResidentialUnit implements Serializable {
+	private long electricityID;
+	private float electricityMeter;
+	private long hotWaterID;
+	private long coldWaterID;
+	private float hotWaterMeter;
+	private float coldWaterMeter;
+	private long[] heatingIDs;
+	private float[] heatingMeters;
+	private String address;
+	private int persons;
+	private int squareMeter;//not use for electricity, but later
+
+	ResidentialUnit(long electricityID, long hotWaterID, long coldWaterID, long[] heatingID, String address, int persons) {
 		this.electricityID = electricityID;
 		this.hotWaterID = hotWaterID;
 		this.coldWaterID = coldWaterID;
@@ -32,87 +31,72 @@ public class ResidentialUnit implements Serializable
 		this.hotWaterMeter = 0;
 		this.coldWaterMeter = 0;
 
-		this.heatingMeters = new int[this.heatingIDs.length];
-		for(int i=0;i<this.heatingIDs.length;i++)
+		this.heatingMeters = new float[this.heatingIDs.length];
+		for ( int i = 0; i < this.heatingIDs.length; i++ )
 			this.heatingMeters[i] = 0;
 
-		this.address = address;	
+		this.address = address;
 		this.persons = persons;
-		this.squareMeter = this.persons+1*25;
+		this.squareMeter = (this.persons + 1) * 25;
 	}
-	
-	public int getElectricityID()
-	{
-		return electricityID;
+
+	public long getElectricityID() {
+		return this.electricityID;
 	}
-	
-	public int getElectricityMeter()
-	{
-		return electricityMeter;
+
+	public float getElectricityMeter() {
+		return this.electricityMeter;
 	}
-	
-	public void setElectricityMeter(int newValue)
-	{
-		this. electricityMeter = newValue;
+
+	public void setElectricityMeter(float newValue) {
+		this.electricityMeter = newValue;
 	}
-	
-	public String getAddress()
-	{
-		return address;
+
+	public String getAddress() {
+		return this.address;
 	}
-	
-	public int getPersons()
-	{
-		return persons;
+
+	public int getPersons() {
+		return this.persons;
 	}
-	
-	public int getSquareMeter()
-	{
-		return squareMeter;
-	}	
-	
-	public int getHotWaterID()
-	{
-		return hotWaterID;
+
+	public int getSquareMeter() {
+		return this.squareMeter;
 	}
-	
-	public int getColdWaterID()
-	{
-		return coldWaterID;
+
+	public long getHotWaterID() {
+		return this.hotWaterID;
 	}
-	
-	public int getHotWaterMeter()
-	{
-		return hotWaterMeter;
+
+	public long getColdWaterID() {
+		return this.coldWaterID;
 	}
-	
-	public void setHotWaterMeter(int newValue)
-	{
-		this.hotWaterMeter=newValue;
+
+	public float getHotWaterMeter() {
+		return this.hotWaterMeter;
 	}
-	
-	public int getColdWaterMeter()
-	{
-		return coldWaterMeter;
+
+	public void setHotWaterMeter(float newValue) {
+		this.hotWaterMeter = newValue;
 	}
-	
-	public void setColdWaterMeter(int newValue)
-	{
-		this.coldWaterMeter=newValue;
+
+	public float getColdWaterMeter() {
+		return this.coldWaterMeter;
 	}
-	
-	public int[] getHeatingIDs()
-	{
-		return heatingIDs;
+
+	public void setColdWaterMeter(float newValue) {
+		this.coldWaterMeter = newValue;
 	}
-	
-	public int[] getHeatingMeters()
-	{
-		return heatingMeters;
+
+	public long[] getHeatingIDs() {
+		return this.heatingIDs;
 	}
-	
-	public void setHeatingMeters(int[] newValue)
-	{
-		this.heatingMeters=newValue;
+
+	public float[] getHeatingMeters() {
+		return this.heatingMeters;
+	}
+
+	public void setHeatingMeters(float[] newValues) {
+		this.heatingMeters = newValues;
 	}
 }

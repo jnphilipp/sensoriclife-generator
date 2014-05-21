@@ -3,7 +3,6 @@ package org.sensoriclife.generator.electricity;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-
 import org.sensoriclife.generator.world.ResidentialUnit;
 
 public class ElectricityValueGenerator implements Serializable {
@@ -12,7 +11,7 @@ public class ElectricityValueGenerator implements Serializable {
 	 * Idea for later: put a number of electroID in an array and define ids
 	 * which are in an office. For those, other calculations will call.
 	 */
-	public int generateNextValue(ResidentialUnit unit, Date timestamp) {
+	public float generateNextValue(ResidentialUnit unit, Date timestamp) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(timestamp);
 
@@ -35,34 +34,34 @@ public class ElectricityValueGenerator implements Serializable {
 	 * summer will return a high value because in winter you need light the
 	 * whole day and in summer the air conditioning
 	 * 
-	 * @return double value beetween 0.0 and 1.0
+	 * @return float value beetween 0.0 and 1.0
 	 */
-	private double getFactorForMonth(Calendar calendar) {
+	private float getFactorForMonth(Calendar calendar) {
 		switch (calendar.get(Calendar.MONTH)) {
 		case Calendar.JANUARY:
-			return generateValueInRange(0.9, 1);
+			return generateValueInRange(0.9f, 1.0f);
 		case Calendar.FEBRUARY:
-			return generateValueInRange(0.9, 1);
+			return generateValueInRange(0.9f, 1.0f);
 		case Calendar.MARCH:
-			return generateValueInRange(0.8, 0.9);
+			return generateValueInRange(0.8f, 0.9f);
 		case Calendar.APRIL:
-			return generateValueInRange(0.6, 0.8);
+			return generateValueInRange(0.6f, 0.8f);
 		case Calendar.MAY:
-			return generateValueInRange(0.5, 0.7);
+			return generateValueInRange(0.5f, 0.7f);
 		case Calendar.JUNE:
-			return generateValueInRange(0.6, 0.7);
+			return generateValueInRange(0.6f, 0.7f);
 		case Calendar.JULY:
-			return generateValueInRange(0.7, 0.8);
+			return generateValueInRange(0.7f, 0.8f);
 		case Calendar.AUGUST:
-			return generateValueInRange(0.7, 0.8);
+			return generateValueInRange(0.7f, 0.8f);
 		case Calendar.SEPTEMBER:
-			return generateValueInRange(0.5, 0.6);
+			return generateValueInRange(0.5f, 0.6f);
 		case Calendar.OCTOBER:
-			return generateValueInRange(0.6, 0.8);
+			return generateValueInRange(0.6f, 0.8f);
 		case Calendar.NOVEMBER:
-			return generateValueInRange(0.8, 0.9);
+			return generateValueInRange(0.8f, 0.9f);
 		default:
-			return generateValueInRange(0.9, 1);
+			return generateValueInRange(0.9f, 1.0f);
 		}
 	}
 
@@ -70,14 +69,14 @@ public class ElectricityValueGenerator implements Serializable {
 	 * calculates percentage consumption for the given time at a weekend day
 	 * During the day the consumption has the same level.
 	 * 
-	 * @return double value beetween 0.0 and 1.0
+	 * @return float value beetween 0.0 and 1.0
 	 */
-	private double getFactorForWeekendDay(Calendar calendar) {
+	private float getFactorForWeekendDay(Calendar calendar) {
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		if (hour > 6 && hour < 23)
-			return generateValueInRange(0.5, 1.0);
+			return generateValueInRange(0.5f, 1.0f);
 		else
-			return generateValueInRange(0.0, 0.1);
+			return generateValueInRange(0.0f, 0.1f);
 	}
 
 	/*
@@ -85,46 +84,45 @@ public class ElectricityValueGenerator implements Serializable {
 	 * time in the evening will return a value roughly 1.0 A time in during the
 	 * day will return a value roughly 0.0
 	 * 
-	 * @return double value beetween 0.0 and 1.0
+	 * @return float value beetween 0.0 and 1.0
 	 */
-	private double getFactorForWorkingDay(Calendar calendar) {
+	private float getFactorForWorkingDay(Calendar calendar) {
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		if (hour > 6 && hour < 9)
-			return generateValueInRange(0.5, 0.8);
+			return generateValueInRange(0.5f, 0.8f);
 		else if (hour >= 9 && hour < 18)
-			return generateValueInRange(0.1, 0.3);
+			return generateValueInRange(0.1f, 0.3f);
 		else if (hour >= 18 && hour < 22)
-			return generateValueInRange(0.8, 1.0);
+			return generateValueInRange(0.8f, 1.0f);
 		else
-			return generateValueInRange(0.0, 0.1);
+			return generateValueInRange(0.0f, 0.1f);
 	}
 
 	/*
 	 * calculates percentage consumption for the given number of persons. Two
 	 * persons need more energy than one but not by factor 2...
 	 */
-	private double getFactorForPersons(int persons) {
+	private float getFactorForPersons(int persons) {
 		if (persons < 1){
-			double x = Math.random();
-			return (x < 0.1)? x : 0; 
+			float x = (float)Math.random();
+			return (x < 0.1)? x : 0;
 		}
-		return 1 + Math.log(persons);
+		return 1 + (float)Math.log(persons);
 	}
-	
+
 	/*
 	 * calculates percentage consumption for the area of the unit.
 	 * 10sm = 1.02
 	 * 50sm = 1.1
 	 * 100qm = 1.2
-	 */	
-	private double getFactorForArea(int squareMeter) {
-		if (squareMeter < 1) 
+	 */
+	private float getFactorForArea(int squareMeter) {
+		if (squareMeter < 1)
 			return 0;
 		return 1 + (squareMeter / 500);
 	}
 
-	private double generateValueInRange(double min, double max) {
-		return min + (Math.random() * (max - min));
+	private float generateValueInRange(float min, float max) {
+		return min + ((float)Math.random() * (max - min));
 	}
-
 }

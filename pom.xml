@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sensoriclife</groupId>
 	<artifactId>generator</artifactId>
-	<version>0.2.2</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>generator</name>
@@ -98,22 +98,6 @@
 				<version>1.2.1</version>
 				<configuration>
 					<mainClass>org.sensoriclife.generator.App</mainClass>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>org.sensoriclife.generator.App</mainClass>
-						</manifest>
-					</archive>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -20,7 +20,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.0.9
+ * @version 0.0.10
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -58,7 +58,7 @@ public class WorldGenerator extends BaseRichSpout {
 			Logger.debug(WorldGenerator.class, "Finished creating world.");
 		}
 	}
-	
+
 	private void createWorld() {
 		Logger.debug(WorldGenerator.class, "Start creating world.");
 
@@ -73,7 +73,6 @@ public class WorldGenerator extends BaseRichSpout {
 			int rowid = 1;
 			int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
 			int tempUsers = (users > 100 ? 100 : users) / 100 * totalResidentialUnits;
-				
 
 			for ( int c = 0; c < cities; c++ )
 				for ( int d = 0; d < districts; d++ )
@@ -85,10 +84,10 @@ public class WorldGenerator extends BaseRichSpout {
 
 									if ( this.random.nextInt() % 10000 == 2 ) {//one person have more than one residential unit
 										for ( int k = 0; k < this.random.nextInt(5) + 2; k++ ) {
-											int[] heatings = new int[this.random.nextInt(11)];
+											long[] heatings = new long[this.random.nextInt(11)];
 											for ( int i = 0; i < heatings.length; i++ )
 												heatings[i] = totalResidentialUnits+i;
-										
+
 											ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
 
 											//accumulo
@@ -105,7 +104,7 @@ public class WorldGenerator extends BaseRichSpout {
 										}
 									}
 
-									int[] heatings = new int[this.random.nextInt(11)];
+									long[] heatings = new long[this.random.nextInt(11)];
 									for ( int i = 0; i < heatings.length; i++ )
 										heatings[i] = totalResidentialUnits+i;
 
@@ -124,11 +123,11 @@ public class WorldGenerator extends BaseRichSpout {
 									totalResidentialUnits--;
 								}
 								else {//empty flats
-									int[] heatings = new int[this.random.nextInt(11)];
+									long[] heatings = new long[this.random.nextInt(11)];
 									for ( int i = 0; i < heatings.length; i++ )
 										heatings[i] = totalResidentialUnits+i;
 
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
