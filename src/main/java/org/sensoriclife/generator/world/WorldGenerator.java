@@ -18,17 +18,26 @@ import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.util.Helpers;
 
 /**
- * 
+ *
  * @author paul, stefan, jnphilipp
- * @version 0.0.8
+ * @version 0.0.9
  */
-public class WorldGenerator extends BaseRichSpout {	
-	private static boolean worldAlreadyCreated = false;
+public class WorldGenerator extends BaseRichSpout {
+	private static boolean created = false;
 	private SpoutOutputCollector collector;
 	private Random random;
 
 	public WorldGenerator() {
 		this.random = new Random(System.currentTimeMillis());
+	}
+
+	public WorldGenerator(boolean created) {
+		WorldGenerator.created = created;
+		this.random = new Random(System.currentTimeMillis());
+	}
+
+	public static void setCreated(boolean created) {
+		WorldGenerator.created = created;
 	}
 
 	@Override
@@ -43,14 +52,16 @@ public class WorldGenerator extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		if ( !worldAlreadyCreated ) {
+		if ( !created ) {
 			Logger.debug(WorldGenerator.class, "Creating world.");
-			createWorld();
+			this.createWorld();
 			Logger.debug(WorldGenerator.class, "Finished creating world.");
 		}
 	}
 	
-	public void createWorld() {
+	private void createWorld() {
+		Logger.debug(WorldGenerator.class, "Start creating world.");
+
 		int cities = Config.getIntegerProperty("generator.cities");
 		int districts = Config.getIntegerProperty("generator.districts");
 		int streets = Config.getIntegerProperty("generator.streets");
@@ -60,9 +71,8 @@ public class WorldGenerator extends BaseRichSpout {
 
 		try {
 			int rowid = 1;
-			int tempUsers = (users > 100 ? 100 : users);// use for user id
 			int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
-			tempUsers=tempUsers/100*totalResidentialUnits;
+			int tempUsers = (users > 100 ? 100 : users) / 100 * totalResidentialUnits;
 				
 
 			for ( int c = 0; c < cities; c++ )
@@ -91,51 +101,52 @@ public class WorldGenerator extends BaseRichSpout {
 												this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
 
 											totalResidentialUnits--;
+											tempUsers--;//one global user less, cause one has one unit more
 										}
-
-										int[] heatings = new int[this.random.nextInt(11)];
-										for ( int i = 0; i < heatings.length; i++ )
-											heatings[i] = totalResidentialUnits+i;
-
-										ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
-
-										//accumulo
-										Value value = new Value(Helpers.toByteArray(residentialUnit));
-										Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
-										rowid++;
-										//spout
-
-										if ( this.collector != null )
-											this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
-
-										tempUsers--;
-										totalResidentialUnits--;
 									}
-									else {//empty flats
-										int[] heatings = new int[this.random.nextInt(11)];
-										for ( int i = 0; i < heatings.length; i++ )
-											heatings[i] = totalResidentialUnits+i;
 
-										ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									int[] heatings = new int[this.random.nextInt(11)];
+									for ( int i = 0; i < heatings.length; i++ )
+										heatings[i] = totalResidentialUnits+i;
 
-										//accumulo
-										Value value = new Value(Helpers.toByteArray(residentialUnit));
-										Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
-										rowid++;
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
 
-										//spout
-										if(this.collector!=null)
-											this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+									//accumulo
+									Value value = new Value(Helpers.toByteArray(residentialUnit));
+									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									rowid++;
 
-										totalResidentialUnits--;
-									}
+									//spout
+									if ( this.collector != null )
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+
+									tempUsers--;
+									totalResidentialUnits--;
+								}
+								else {//empty flats
+									int[] heatings = new int[this.random.nextInt(11)];
+									for ( int i = 0; i < heatings.length; i++ )
+										heatings[i] = totalResidentialUnits+i;
+
+									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits,heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+
+									//accumulo
+									Value value = new Value(Helpers.toByteArray(residentialUnit));
+									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									rowid++;
+
+									//spout
+									if(this.collector!=null)
+										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+
+									totalResidentialUnits--;
 								}
 							}
 
-			worldAlreadyCreated = true;
+			created = true;
 		}
 		catch ( IOException | MutationsRejectedException | TableNotFoundException e ) {
 			Logger.error(WorldGenerator.class, "Error while creating world.", e.toString());
 		}
-	}	
+	}
 }
