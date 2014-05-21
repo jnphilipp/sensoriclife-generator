@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sensoriclife</groupId>
 	<artifactId>generator</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 	<packaging>jar</packaging>
 
 	<name>generator</name>
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>sensoriclife</groupId>
 			<artifactId>lib</artifactId>
-			<version>0.2.2</version>
+			<version>0.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -60,25 +60,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>3.3.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.accumulo</groupId>
-			<artifactId>accumulo-core</artifactId>
-			<version>1.5.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>2.4.0</version>
 		</dependency>
 	</dependencies>
 
@@ -90,14 +74,6 @@
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
-				<configuration>
-					<mainClass>org.sensoriclife.generator.App</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

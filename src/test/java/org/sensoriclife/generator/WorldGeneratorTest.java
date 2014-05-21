@@ -6,6 +6,7 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -14,6 +15,7 @@ import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.world.WorldGenerator;
@@ -23,17 +25,8 @@ import org.sensoriclife.generator.world.WorldGenerator;
  * @author paul
  */
 public class WorldGeneratorTest {
-	/**
-	 * Test of createWorld method, of class WorldGenerator.
-	 * @throws org.apache.accumulo.core.client.AccumuloException
-	 * @throws org.apache.accumulo.core.client.AccumuloSecurityException
-	 * @throws org.apache.accumulo.core.client.TableExistsException
-	 * @throws org.apache.accumulo.core.client.TableNotFoundException
-	 */
-	@Test
-	public void testGenerator() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException {
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.realtime", "true");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.timefactor", "1");
+	@BeforeClass
+	public static void setUp() {
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("storm.debug", "true");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.cities", "1");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.districts", "1");
@@ -41,9 +34,17 @@ public class WorldGeneratorTest {
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.buildings", "10");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.residentialUnits", "10");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.users", "99");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name", "sensoriclife_generator");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.realtime", "true");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.timefactor", "1");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name", "sensoriclife");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.batch_writer.max_memory", "10000000");
+	}
 
+	@Test
+	public void testGenerator() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException, IOException, InterruptedException {
 		Accumulo.getInstance().connect();
-		Accumulo.getInstance().createTable("generator_helper_table");
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name"));
 
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("worldgenerator", new WorldGenerator(false), 1);
@@ -57,37 +58,29 @@ public class WorldGeneratorTest {
 		cluster.killTopology("test");
 		cluster.shutdown();
 
-		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll("generator_helper_table");
+		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll(org.sensoriclife.Config.getProperty("generator.table_name"));
 		int i = 0;
 		for ( ; entries.hasNext(); ++i ) {entries.next();}
 		assertNotEquals(i, 0);
 
-		Accumulo.getInstance().deleteTable("generator_helper_table");
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
+		Accumulo.getInstance().disconnect();
 	}
 
 	@Test
-	public void testCreateWorld() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException {
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.realtime", "true");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.timefactor", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("storm.debug", "true");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.cities", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.districts", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.streets", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.buildings", "10");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.residentialUnits", "10");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.users", "99");
-
+	public void testCreateWorld() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException, IOException, InterruptedException {
 		Accumulo.getInstance().connect();
-		Accumulo.getInstance().createTable("generator_helper_table");
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name"));
 
 		WorldGenerator instance = new WorldGenerator(false);
 		instance.nextTuple();
 
-		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll("generator_helper_table");
+		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll(org.sensoriclife.Config.getProperty("generator.table_name"));
 		int i = 0;
 		for ( ; entries.hasNext(); ++i ) {entries.next();}
 		assertNotEquals(i, 0);
 
-		Accumulo.getInstance().deleteTable("generator_helper_table");
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
+		Accumulo.getInstance().disconnect();
 	}
 }

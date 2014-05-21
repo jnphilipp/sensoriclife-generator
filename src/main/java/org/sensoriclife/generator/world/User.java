@@ -8,25 +8,24 @@ import java.util.List;
 /**
  * 
  * @author paul
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class User implements Serializable
 {
-  private int id;
+  private long id;
 	private String name;
 	private ArrayList<String> address = new ArrayList<String>();
 	
 	private NameGenerator gen = new NameGenerator();
 	
-	User(int id, String address)
+	User(long id, String address)
 	{
 		this.id = id;
 		this.name = gen.getName();
 		this.address.add(address);	
 	}
 	
-	public int getID()
-	{
+	public long getID() {
 		return this.id;
 	}
 	

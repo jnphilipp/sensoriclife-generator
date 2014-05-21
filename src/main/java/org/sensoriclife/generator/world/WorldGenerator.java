@@ -20,7 +20,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.0.10
+ * @version 0.0.11
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -71,8 +71,8 @@ public class WorldGenerator extends BaseRichSpout {
 
 		try {
 			int rowid = 1;
-			int totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
-			int tempUsers = (users > 100 ? 100 : users) / 100 * totalResidentialUnits;
+			long totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
+			long tempUsers = (users > 100 ? 100 : users) / 100 * totalResidentialUnits;
 
 			for ( int c = 0; c < cities; c++ )
 				for ( int d = 0; d < districts; d++ )
@@ -92,7 +92,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 											//accumulo
 											Value value = new Value(Helpers.toByteArray(residentialUnit));
-											Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+											Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 											rowid++;
 											user.addAddress(c+"-"+d+"-"+s+"-"+b+"-"+r);
 
@@ -112,7 +112,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 									rowid++;
 
 									//spout
@@ -131,7 +131,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().write("generator_helper_table", ""+rowid, "residentialUnit", "", value);
+									Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 									rowid++;
 
 									//spout
@@ -143,6 +143,7 @@ public class WorldGenerator extends BaseRichSpout {
 							}
 
 			created = true;
+			Accumulo.getInstance().closeBashWriter(Config.getProperty("generator.table_name"));
 		}
 		catch ( IOException | MutationsRejectedException | TableNotFoundException e ) {
 			Logger.error(WorldGenerator.class, "Error while creating world.", e.toString());
