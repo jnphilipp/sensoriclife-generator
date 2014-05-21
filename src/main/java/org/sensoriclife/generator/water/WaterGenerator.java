@@ -26,7 +26,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, jnphilipp
- * @version 0.0.5
+ * @version 0.0.6
  */
 public class WaterGenerator extends BaseRichSpout {
 	private SpoutOutputCollector collector;
@@ -45,10 +45,10 @@ public class WaterGenerator extends BaseRichSpout {
 		for ( int i = 0; i < 4; i++ ) {//4x15min
 			Iterator<Entry<Key, Value>> entries = null;
 			try {
-				entries = Accumulo.getInstance().scanAll("generator_helper_table", "public");
+				entries = Accumulo.getInstance().scanAll(Config.getProperty("generator.table_name"));
 			}
 			catch ( TableNotFoundException e ) {
-				Logger.error(WaterGenerator.class, "Error while reading data from generator_helper_table.", e.toString());
+				Logger.error(WaterGenerator.class, "Error while reading data from: " + Config.getProperty("generator.table_name"), e.toString());
 				break;
 			}
 
