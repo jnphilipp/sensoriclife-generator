@@ -22,6 +22,7 @@ public class HeatingValueGenerator implements Serializable {
 
 		int consumption = 100;
 		consumption *= getFactorForMonth(calendar);
+		consumption += getFactorForPersons(unit.getPersons());
 		consumption *= getFactorForArea(unit.getSquareMeter());
 
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -114,6 +115,18 @@ public class HeatingValueGenerator implements Serializable {
 		if (squareMeter < 1) 
 			return 0;
 		return Math.log(squareMeter);
+	}
+	
+	/*
+	 * calculates percentage consumption for the given number of persons. 
+	 * If nobody lives in the flat, a small value will be returned (or 0). Otherwise 1
+	 */
+	private double getFactorForPersons(int persons) {
+		if (persons < 1){
+			double x = Math.random();
+			return (x < 0.1)? x : 0; 
+		}
+		return 1;
 	}
 
 	private double generateValueInRange(double min, double max) {

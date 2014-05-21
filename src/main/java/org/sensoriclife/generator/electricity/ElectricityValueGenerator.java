@@ -104,8 +104,10 @@ public class ElectricityValueGenerator implements Serializable {
 	 * persons need more energy than one but not by factor 2...
 	 */
 	private double getFactorForPersons(int persons) {
-		if (persons < 1)
-			return 0;
+		if (persons < 1){
+			double x = Math.random();
+			return (x < 0.1)? x : 0; 
+		}
 		return 1 + Math.log(persons);
 	}
 	

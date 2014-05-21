@@ -81,9 +81,13 @@ public class WaterValueGenerator implements Serializable {
 	/*
 	 * calculates percentage consumption for the given number of persons right
 	 * now, its a really simple implementation and will multiply the consumption
-	 * by the number of persons
+	 * by the number of persons. If nobody lives in the flat a small value will be returned
 	 */
 	private double getFactorForPersons(int persons) {
+		if (persons < 1){
+			double x = Math.random();
+			return (x < 0.1)? x : 0; 
+		}
 		return persons;
 	}
 	
