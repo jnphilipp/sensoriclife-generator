@@ -1,6 +1,7 @@
 package org.sensoriclife.generator;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -62,6 +63,7 @@ public class WorldGeneratorTest {
 		int i = 0;
 		for ( ; entries.hasNext(); ++i ) {entries.next();}
 		assertNotEquals(i, 0);
+		assertTrue(WorldGenerator.isCreated());
 
 		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
 		Accumulo.getInstance().disconnect();
@@ -79,6 +81,7 @@ public class WorldGeneratorTest {
 		int i = 0;
 		for ( ; entries.hasNext(); ++i ) {entries.next();}
 		assertNotEquals(i, 0);
+		assertTrue(WorldGenerator.isCreated());
 
 		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
 		Accumulo.getInstance().disconnect();

@@ -20,7 +20,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.0.11
+ * @version 0.0.12
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -34,6 +34,10 @@ public class WorldGenerator extends BaseRichSpout {
 	public WorldGenerator(boolean created) {
 		WorldGenerator.created = created;
 		this.random = new Random(System.currentTimeMillis());
+	}
+
+	public static boolean isCreated() {
+		return created;
 	}
 
 	public static void setCreated(boolean created) {

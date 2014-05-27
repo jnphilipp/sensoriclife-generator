@@ -6,6 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import backtype.storm.utils.Utils;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -21,12 +22,13 @@ import org.sensoriclife.Config;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.world.ResidentialUnit;
+import org.sensoriclife.generator.world.WorldGenerator;
 import org.sensoriclife.util.Helpers;
 
 /**
  * 
  * @author paul, jnphilipp
- * @version 0.0.6
+ * @version 0.1.0
  */
 public class WaterGenerator extends BaseRichSpout {
 	private SpoutOutputCollector collector;
@@ -41,6 +43,10 @@ public class WaterGenerator extends BaseRichSpout {
 	@Override
 	public void nextTuple() {
 		Logger.debug(WaterGenerator.class, "Generating next water values.");
+		if ( !WorldGenerator.isCreated() ) {
+			Utils.sleep(5000);
+			return;
+		}
 
 		for ( int i = 0; i < 4; i++ ) {//4x15min
 			Iterator<Entry<Key, Value>> entries = null;
@@ -77,15 +83,8 @@ public class WaterGenerator extends BaseRichSpout {
 			}
 		}
 
-		if ( Config.getBooleanProperty("generator.realtime") ) {
-			try {
-				Thread.sleep((4*1000)/Config.getIntegerProperty("generator.timefactor"));// for testing only 4 sec
-				//Thread.sleep((4*900000)/App.getIntegerProperty("timefactor"));//1h
-			}
-			catch ( InterruptedException e ) {
-				Logger.error(WaterGenerator.class, e.toString());
-			}
-		}
+		if ( Config.getBooleanProperty("generator.realtime") )
+			Utils.sleep((4*900000) / Config.getIntegerProperty("generator.timefactor"));//1h
 	}
 
 	@Override

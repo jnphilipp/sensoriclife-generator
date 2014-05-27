@@ -6,6 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import backtype.storm.utils.Utils;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -20,12 +21,13 @@ import org.sensoriclife.Config;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.world.ResidentialUnit;
+import org.sensoriclife.generator.world.WorldGenerator;
 import org.sensoriclife.util.Helpers;
 
 /**
  * 
  * @author paul
- * @version 0.0.4
+ * @version 0.0.6
  */
 public class HeatingGenerator extends BaseRichSpout {
 
@@ -41,6 +43,10 @@ public class HeatingGenerator extends BaseRichSpout {
 	@Override
 	public void nextTuple() {
 		Logger.debug(HeatingGenerator.class, "Generating next heating values.");
+		if ( !WorldGenerator.isCreated() ) {
+			Utils.sleep(5000);
+			return;
+		}
 
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
@@ -76,15 +82,8 @@ public class HeatingGenerator extends BaseRichSpout {
 			timestamp.setTime(timestamp.getTime()+15 * 60 * 1000);
 		}
 
-		if ( Config.getBooleanProperty("generator.realtime")) {
-			try {
-				Thread.sleep((1000)/Config.getIntegerProperty("generator.timefactor"));// for testing only 1 sec
-				//Thread.sleep((900000)/App.getIntegerProperty("timefactor"));//15min
-			}
-			catch ( InterruptedException e ) {
-				Logger.error(HeatingGenerator.class, e.toString());
-			}
-		}
+		if ( Config.getBooleanProperty("generator.realtime") )
+			Utils.sleep((900000) / Config.getIntegerProperty("generator.timefactor"));//15min
 	}
 
 	@Override
