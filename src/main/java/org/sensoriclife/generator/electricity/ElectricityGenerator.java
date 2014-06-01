@@ -24,13 +24,12 @@ import org.sensoriclife.Config;
 import org.sensoriclife.Logger;
 import org.sensoriclife.db.Accumulo;
 import org.sensoriclife.generator.world.ResidentialUnit;
-import org.sensoriclife.generator.world.WorldGenerator;
 import org.sensoriclife.util.Helpers;
 
 /**
  * 
  * @author paul, stefan, jnphilipp
- * @version 0.2.0
+ * @version 0.2.1
  */
 public class ElectricityGenerator extends BaseRichSpout {
 	private SpoutOutputCollector collector;
@@ -54,10 +53,6 @@ public class ElectricityGenerator extends BaseRichSpout {
 	@Override
 	public void nextTuple() {
 		Logger.debug(ElectricityGenerator.class, "Generating next heating values.");
-		if ( !WorldGenerator.isCreated() ) {
-			Utils.sleep(5000);
-			return;
-		}
 
 		try {
 			if ( (((this.confs.containsKey("accumulo.name") && !this.confs.get("accumulo.name").isEmpty()) || (this.confs.containsKey("accumulo.zooServers") && !this.confs.get("accumulo.zooServers").isEmpty())) || (this.confs.containsKey("accumulo.user") && !this.confs.get("accumulo.user").isEmpty())) || (this.confs.containsKey("accumulo.password") && !this.confs.get("accumulo.password").isEmpty()) )
