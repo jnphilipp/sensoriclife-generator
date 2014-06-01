@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -27,13 +29,22 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul
- * @version 0.0.6
+ * @version 0.1.0
  */
 public class HeatingGenerator extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
 	HeatingValueGenerator valueGenerator = new HeatingValueGenerator();
+	private Map<String, String> confs;
+
+	public HeatingGenerator() {
+		this.confs = Config.toMap();
+	}
+
+	public HeatingGenerator(Map<String, String> confs) {
+		this.confs = confs;
+	}
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -48,12 +59,20 @@ public class HeatingGenerator extends BaseRichSpout {
 			return;
 		}
 
+		try {
+			if ( (((this.confs.containsKey("accumulo.name") && !this.confs.get("accumulo.name").isEmpty()) || (this.confs.containsKey("accumulo.zooServers") && !this.confs.get("accumulo.zooServers").isEmpty())) || (this.confs.containsKey("accumulo.user") && !this.confs.get("accumulo.user").isEmpty())) || (this.confs.containsKey("accumulo.password") && !this.confs.get("accumulo.password").isEmpty()) )
+				Accumulo.getInstance().connect(this.confs.get("accumulo.name"), this.confs.get("accumulo.zooServers"), this.confs.get("accumulo.user"), this.confs.get("accumulo.password"));
+		}
+		catch ( AccumuloException | AccumuloSecurityException e ) {
+			Logger.error(HeatingGenerator.class, "Error while connecting to accumulo.", e.toString());
+		}
+
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scanAll(Config.getProperty("generator.table_name"));
+			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name"));
 		}
 		catch ( TableNotFoundException e ) {
-			Logger.error(HeatingGenerator.class, "Error while reading data from: " + Config.getProperty("generator.table_name"), e.toString());
+			Logger.error(HeatingGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name"), e.toString());
 			return;
 		}
 
@@ -82,8 +101,8 @@ public class HeatingGenerator extends BaseRichSpout {
 			timestamp.setTime(timestamp.getTime()+15 * 60 * 1000);
 		}
 
-		if ( Config.getBooleanProperty("generator.realtime") )
-			Utils.sleep((900000) / Config.getIntegerProperty("generator.timefactor"));//15min
+		if ( Boolean.parseBoolean(this.confs.get("generator.realtime")) )
+			Utils.sleep((900000) / Integer.parseInt(this.confs.get("generator.timefactor")));//15min
 	}
 
 	@Override

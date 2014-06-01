@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -28,12 +30,21 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, stefan, jnphilipp
- * @version 0.1.0
+ * @version 0.2.0
  */
 public class ElectricityGenerator extends BaseRichSpout {
 	private SpoutOutputCollector collector;
 	private Date timestamp = new Timestamp(System.currentTimeMillis());
 	private ElectricityValueGenerator valueGenerator = new ElectricityValueGenerator();
+	private Map<String, String> confs;
+
+	public ElectricityGenerator() {
+		this.confs = Config.toMap();
+	}
+
+	public ElectricityGenerator(Map<String, String> confs) {
+		this.confs = confs;
+	}
 
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -48,12 +59,20 @@ public class ElectricityGenerator extends BaseRichSpout {
 			return;
 		}
 
+		try {
+			if ( (((this.confs.containsKey("accumulo.name") && !this.confs.get("accumulo.name").isEmpty()) || (this.confs.containsKey("accumulo.zooServers") && !this.confs.get("accumulo.zooServers").isEmpty())) || (this.confs.containsKey("accumulo.user") && !this.confs.get("accumulo.user").isEmpty())) || (this.confs.containsKey("accumulo.password") && !this.confs.get("accumulo.password").isEmpty()) )
+				Accumulo.getInstance().connect(this.confs.get("accumulo.name"), this.confs.get("accumulo.zooServers"), this.confs.get("accumulo.user"), this.confs.get("accumulo.password"));
+		}
+		catch ( AccumuloException | AccumuloSecurityException e ) {
+			Logger.error(ElectricityGenerator.class, "Error while connecting to accumulo.", e.toString());
+		}
+
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scanAll(Config.getProperty("generator.table_name"));
+			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name"));
 		}
 		catch ( TableNotFoundException e ) {
-			Logger.error(ElectricityGenerator.class, "Error while reading data from: " + Config.getProperty("generator.table_name"), e.toString());
+			Logger.error(ElectricityGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name"), e.toString());
 			return;
 		}
 
@@ -82,9 +101,8 @@ public class ElectricityGenerator extends BaseRichSpout {
 			timestamp.setTime(timestamp.getTime()+15*60*1000);
 		}
 
-		if ( Config.getBooleanProperty("generator.realtime")) {
-			Utils.sleep(900000 / Config.getIntegerProperty("generator.timefactor"));
-		}
+		if ( Boolean.parseBoolean(this.confs.get("generator.realtime")) )
+			Utils.sleep(900000 / Integer.parseInt(this.confs.get("generator.timefactor")));
 	}
 
 	@Override

@@ -10,6 +10,8 @@ import backtype.storm.utils.Utils;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Value;
@@ -21,20 +23,34 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.0.12
+ * @version 0.1.0
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
 	private SpoutOutputCollector collector;
 	private Random random;
+	private Map<String, String> confs;
 
 	public WorldGenerator() {
 		this.random = new Random(System.currentTimeMillis());
+		this.confs = Config.toMap();
+	}
+
+	public WorldGenerator(Map<String, String> confs) {
+		this.random = new Random(System.currentTimeMillis());
+		this.confs = confs;
 	}
 
 	public WorldGenerator(boolean created) {
 		WorldGenerator.created = created;
 		this.random = new Random(System.currentTimeMillis());
+		this.confs = Config.toMap();
+	}
+
+	public WorldGenerator(boolean created, Map<String, String> confs) {
+		WorldGenerator.created = created;
+		this.random = new Random(System.currentTimeMillis());
+		this.confs = confs;
 	}
 
 	public static boolean isCreated() {
@@ -69,12 +85,20 @@ public class WorldGenerator extends BaseRichSpout {
 	private void createWorld() {
 		Logger.debug(WorldGenerator.class, "Start creating world.");
 
-		int cities = Config.getIntegerProperty("generator.cities");
-		int districts = Config.getIntegerProperty("generator.districts");
-		int streets = Config.getIntegerProperty("generator.streets");
-		int buildings = Config.getIntegerProperty("generator.buildings");
-		int residentialUnits = Config.getIntegerProperty("generator.residentialUnits");
-		int users = Config.getIntegerProperty("generator.users");
+		int cities = Integer.parseInt(this.confs.get("generator.cities"));
+		int districts = Integer.parseInt(this.confs.get("generator.districts"));
+		int streets = Integer.parseInt(this.confs.get("generator.streets"));
+		int buildings = Integer.parseInt(this.confs.get("generator.buildings"));
+		int residentialUnits = Integer.parseInt(this.confs.get("generator.residentialUnits"));
+		int users = Integer.parseInt(this.confs.get("generator.users"));
+
+		try {
+			if ( (((this.confs.containsKey("accumulo.name") && !this.confs.get("accumulo.name").isEmpty()) || (this.confs.containsKey("accumulo.zooServers") && !this.confs.get("accumulo.zooServers").isEmpty())) || (this.confs.containsKey("accumulo.user") && !this.confs.get("accumulo.user").isEmpty())) || (this.confs.containsKey("accumulo.password") && !this.confs.get("accumulo.password").isEmpty()) )
+				Accumulo.getInstance().connect(this.confs.get("accumulo.name"), this.confs.get("accumulo.zooServers"), this.confs.get("accumulo.user"), this.confs.get("accumulo.password"));
+		}
+		catch ( AccumuloException | AccumuloSecurityException e ) {
+			Logger.error(WorldGenerator.class, "Error while connecting to accumulo.", e.toString());
+		}
 
 		try {
 			int rowid = 1;
@@ -99,7 +123,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 											//accumulo
 											Value value = new Value(Helpers.toByteArray(residentialUnit));
-											Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+											Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 											rowid++;
 											user.addAddress(c+"-"+d+"-"+s+"-"+b+"-"+r);
 
@@ -119,7 +143,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+									Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 									rowid++;
 
 									//spout
@@ -138,7 +162,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().addMutation(Config.getProperty("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+									Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 									rowid++;
 
 									//spout
@@ -150,7 +174,7 @@ public class WorldGenerator extends BaseRichSpout {
 							}
 
 			created = true;
-			Accumulo.getInstance().closeBashWriter(Config.getProperty("generator.table_name"));
+			Accumulo.getInstance().closeBashWriter(this.confs.get("generator.table_name"));
 		}
 		catch ( IOException | MutationsRejectedException | TableNotFoundException e ) {
 			Logger.error(WorldGenerator.class, "Error while creating world.", e.toString());
