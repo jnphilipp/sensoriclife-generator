@@ -29,7 +29,7 @@ import org.sensoriclife.util.Helpers;
 /**
  * 
  * @author paul, jnphilipp
- * @version 0.2.1
+ * @version 0.2.2
  */
 public class WaterGenerator extends BaseRichSpout {
 	private SpoutOutputCollector collector;
@@ -78,21 +78,21 @@ public class WaterGenerator extends BaseRichSpout {
 
 				try {
 					unit = (ResidentialUnit)Helpers.toObject(entry.getValue().get());
-				} 
+				}
 				catch ( IOException | ClassNotFoundException e ) {
 					Logger.error(WaterGenerator.class, "Error while converting byte array to object.", e.toString());
 					continue;
 				}
-				
+
 				unit.setColdWaterMeter(valueGenerator.generateNextValue(unit, timestamp, WaterType.COLD));
 				unit.setHotWaterMeter(valueGenerator.generateNextValue(unit, timestamp, WaterType.WARM));
-				
+
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 				sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 				String formattedTime = sdf.format(new Date(timestamp.getTime()));
-				
-				this.collector.emit(new Values(unit.getHotWaterID(), unit.getColdWaterID(), formattedTime , unit.getHotWaterMeter(), unit.getColdWaterMeter()));
-				this.collector.emit("", null);
+
+				this.collector.emit("hotwater", new Values(unit.getHotWaterID(), unit.getHotWaterMeter(), formattedTime));
+				this.collector.emit("coldwater", new Values(unit.getColdWaterID(), unit.getColdWaterMeter(), formattedTime));
 				timestamp.setTime(timestamp.getTime()+15*60*1000);
 			}
 		}
