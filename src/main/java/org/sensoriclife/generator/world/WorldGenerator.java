@@ -23,7 +23,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.1.0
+ * @version 0.1.1
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -114,18 +114,18 @@ public class WorldGenerator extends BaseRichSpout {
 									User user = new User(tempUsers, c+"-"+d+"-"+s+"-"+b+"-"+r);
 
 									if ( this.random.nextInt() % 10000 == 2 ) {//one person have more than one residential unit
-										for ( int k = 0; k < this.random.nextInt(5) + 2; k++ ) {
+										for ( int k = 1; k < this.random.nextInt(5) + 2; k++ ) {
 											long[] heatings = new long[this.random.nextInt(11)];
 											for ( int i = 0; i < heatings.length; i++ )
-												heatings[i] = totalResidentialUnits+i;
+												heatings[i] = totalResidentialUnits+i+k;
 
-											ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
+											ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits + k, totalResidentialUnits + k, totalResidentialUnits + k, heatings, (c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k), this.random.nextInt(21) + 1);
 
 											//accumulo
 											Value value = new Value(Helpers.toByteArray(residentialUnit));
 											Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
 											rowid++;
-											user.addAddress(c+"-"+d+"-"+s+"-"+b+"-"+r);
+											user.addAddress((c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k));
 
 											if ( this.collector != null )
 												this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
@@ -166,8 +166,8 @@ public class WorldGenerator extends BaseRichSpout {
 									rowid++;
 
 									//spout
-									if(this.collector!=null)
-										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+									if ( this.collector != null )
+										this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs()));
 
 									totalResidentialUnits--;
 								}
