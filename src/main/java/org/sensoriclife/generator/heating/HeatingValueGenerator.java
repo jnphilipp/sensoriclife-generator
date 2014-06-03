@@ -21,7 +21,7 @@ public class HeatingValueGenerator implements Serializable {
 
 		float consumption = 100;
 		consumption *= getFactorForMonth(calendar);
-		consumption += getFactorForPersons(unit.getPersons());
+		consumption *= getFactorForPersons(unit.getPersons());
 		consumption *= getFactorForArea(unit.getSquareMeter());
 
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
