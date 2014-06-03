@@ -23,7 +23,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.1.1
+ * @version 0.1.2
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -103,7 +103,7 @@ public class WorldGenerator extends BaseRichSpout {
 		try {
 			int rowid = 1;
 			long totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
-			long tempUsers = (users > 100 ? 100 : users) / 100 * totalResidentialUnits;
+			long tempUsers = (long)((users > 100 ? 100 : users) / 100.0f * totalResidentialUnits);
 
 			for ( int c = 0; c < cities; c++ )
 				for ( int d = 0; d < districts; d++ )
@@ -128,7 +128,7 @@ public class WorldGenerator extends BaseRichSpout {
 											user.addAddress((c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k));
 
 											if ( this.collector != null )
-												this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+												this.collector.emit(new Values("", residentialUnit.getAddress(), "", residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(), residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs()));
 
 											totalResidentialUnits--;
 											tempUsers--;//one global user less, cause one has one unit more
@@ -148,7 +148,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//spout
 									if ( this.collector != null )
-										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs() ));
+										this.collector.emit(new Values(user.getName(), user.getBillingAddress(), Helpers.join(user.getOtherAddresses(), ";"), residentialUnit.getElectricityID(), residentialUnit.getHotWaterID(),residentialUnit.getColdWaterID(), residentialUnit.getHeatingIDs()));
 
 									tempUsers--;
 									totalResidentialUnits--;

@@ -8,20 +8,17 @@ import java.util.List;
 /**
  * 
  * @author paul
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class User implements Serializable
 {
   private long id;
 	private String name;
 	private ArrayList<String> address = new ArrayList<String>();
-	
-	private NameGenerator gen = new NameGenerator();
-	
-	User(long id, String address)
-	{
+
+	User(long id, String address) {
 		this.id = id;
-		this.name = gen.getName();
+		this.name = NameGenerator.getName();
 		this.address.add(address);	
 	}
 	
