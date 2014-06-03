@@ -23,7 +23,7 @@ import org.sensoriclife.util.Helpers;
 /**
  *
  * @author paul, stefan, jnphilipp
- * @version 0.1.2
+ * @version 0.1.3
  */
 public class WorldGenerator extends BaseRichSpout {
 	private static boolean created = false;
@@ -104,6 +104,7 @@ public class WorldGenerator extends BaseRichSpout {
 			int rowid = 1;
 			long totalResidentialUnits = cities*districts*streets*buildings*residentialUnits;//use for electricity id
 			long tempUsers = (long)((users > 100 ? 100 : users) / 100.0f * totalResidentialUnits);
+			long elecid=0, waterid=0, heatingid=0;
 
 			for ( int c = 0; c < cities; c++ )
 				for ( int d = 0; d < districts; d++ )
@@ -115,11 +116,11 @@ public class WorldGenerator extends BaseRichSpout {
 
 									if ( this.random.nextInt() % 10000 == 2 ) {//one person have more than one residential unit
 										for ( int k = 1; k < this.random.nextInt(5) + 2; k++ ) {
-											long[] heatings = new long[this.random.nextInt(11)];
+											long[] heatings = new long[this.random.nextInt(11) + 1];
 											for ( int i = 0; i < heatings.length; i++ )
-												heatings[i] = totalResidentialUnits+i+k;
+												heatings[i] = heatingid++;
 
-											ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits + k, totalResidentialUnits + k, totalResidentialUnits + k, heatings, (c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k), this.random.nextInt(21) + 1);
+											ResidentialUnit residentialUnit = new ResidentialUnit(elecid++, waterid++, waterid++, heatings, (c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k), this.random.nextInt(21) + 1);
 
 											//accumulo
 											Value value = new Value(Helpers.toByteArray(residentialUnit));
@@ -135,11 +136,11 @@ public class WorldGenerator extends BaseRichSpout {
 										}
 									}
 
-									long[] heatings = new long[this.random.nextInt(11)];
+									long[] heatings = new long[this.random.nextInt(11) + 1];
 									for ( int i = 0; i < heatings.length; i++ )
-										heatings[i] = totalResidentialUnits+i;
+										heatings[i] = heatingid++;
 
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits, totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
+									ResidentialUnit residentialUnit = new ResidentialUnit(elecid++, waterid++, waterid++, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, this.random.nextInt(21) + 1);
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
@@ -154,11 +155,11 @@ public class WorldGenerator extends BaseRichSpout {
 									totalResidentialUnits--;
 								}
 								else {//empty flats
-									long[] heatings = new long[this.random.nextInt(11)];
+									long[] heatings = new long[this.random.nextInt(11) + 1];
 									for ( int i = 0; i < heatings.length; i++ )
-										heatings[i] = totalResidentialUnits+i;
+										heatings[i] = heatingid++;
 
-									ResidentialUnit residentialUnit = new ResidentialUnit(totalResidentialUnits, totalResidentialUnits,totalResidentialUnits, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
+									ResidentialUnit residentialUnit = new ResidentialUnit(elecid++, waterid++, waterid++, heatings, c+"-"+d+"-"+s+"-"+b+"-"+r, 0 ); 
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
