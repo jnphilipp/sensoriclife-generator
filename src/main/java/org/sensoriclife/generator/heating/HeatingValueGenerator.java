@@ -8,7 +8,7 @@ import org.sensoriclife.generator.world.ResidentialUnit;
 /**
  * 
  * @author stefan, jnphilipp
- * @version 0.0.4
+ * @version 0.0.5
  */
 public class HeatingValueGenerator implements Serializable {
 	/*
@@ -31,8 +31,8 @@ public class HeatingValueGenerator implements Serializable {
 			consumption *= getFactorForWorkingDay(calendar);
 
 		float[] heatingMeters = unit.getHeatingMeters();
-		for ( float heatingMeter : heatingMeters )
-			heatingMeter += consumption;
+		for ( int i = 0; i < heatingMeters.length; i++ )
+			heatingMeters[i] += consumption;
 		return heatingMeters;
 	}
 
