@@ -65,10 +65,10 @@ public class WaterGenerator extends BaseRichSpout {
 		for ( int i = 0; i < 4; i++ ) {//4x15min
 			Iterator<Entry<Key, Value>> entries = null;
 			try {
-				entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name"));
+				entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name_water"));
 			}
 			catch ( TableNotFoundException e ) {
-				Logger.error(WaterGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name"), e.toString());
+				Logger.error(WaterGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name_water"), e.toString());
 				break;
 			}
 

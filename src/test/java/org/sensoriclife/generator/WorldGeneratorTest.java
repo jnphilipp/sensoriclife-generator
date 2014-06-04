@@ -38,14 +38,18 @@ public class WorldGeneratorTest {
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name", "sensoriclife_generator");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.realtime", "true");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.timefactor", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name", "sensoriclife");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_electricity", "sensoriclife_electricity");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_water", "sensoriclife_water");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_heating", "sensoriclife_heating");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.batch_writer.max_memory", "10000000");
 	}
 
 	@Test
 	public void testGenerator() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException, IOException, InterruptedException {
 		Accumulo.getInstance().connect();
-		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_electricity"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_water"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_heating"));
 
 		TopologyBuilder builder = new TopologyBuilder();
 		builder.setSpout("worldgenerator", new WorldGenerator(false), 1);
@@ -59,31 +63,42 @@ public class WorldGeneratorTest {
 		cluster.killTopology("test");
 		cluster.shutdown();
 
-		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll(org.sensoriclife.Config.getProperty("generator.table_name"));
-		int i = 0;
-		for ( ; entries.hasNext(); ++i ) {entries.next();}
-		assertNotEquals(i, 0);
+		testEntries("generator.table_name_electricity");
+		testEntries("generator.table_name_water");
+		testEntries("generator.table_name_heating");
 		assertTrue(WorldGenerator.isCreated());
 
-		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_electricity"));
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_water"));
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_heating"));
 		Accumulo.getInstance().disconnect();
 	}
 
 	@Test
 	public void testCreateWorld() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException, IOException, InterruptedException {
 		Accumulo.getInstance().connect();
-		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_electricity"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_water"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_heating"));
 
 		WorldGenerator instance = new WorldGenerator(false);
 		instance.nextTuple();
 
-		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll(org.sensoriclife.Config.getProperty("generator.table_name"));
+		testEntries("generator.table_name_electricity");
+		testEntries("generator.table_name_water");
+		testEntries("generator.table_name_heating");
+		assertTrue(WorldGenerator.isCreated());
+
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_electricity"));
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_water"));
+		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name_heating"));
+		Accumulo.getInstance().disconnect();
+	}
+	
+	private void testEntries(String tableName) throws TableNotFoundException{
+		Iterator<Entry<Key, Value>> entries = Accumulo.getInstance().scanAll(org.sensoriclife.Config.getProperty(tableName));
 		int i = 0;
 		for ( ; entries.hasNext(); ++i ) {entries.next();}
 		assertNotEquals(i, 0);
-		assertTrue(WorldGenerator.isCreated());
-
-		Accumulo.getInstance().deleteTable(org.sensoriclife.Config.getProperty("generator.table_name"));
-		Accumulo.getInstance().disconnect();
 	}
 }

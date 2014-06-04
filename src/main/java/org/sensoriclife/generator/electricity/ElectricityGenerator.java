@@ -64,10 +64,10 @@ public class ElectricityGenerator extends BaseRichSpout {
 
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name"));
+			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name_electricity"));
 		}
 		catch ( TableNotFoundException e ) {
-			Logger.error(ElectricityGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name"), e.toString());
+			Logger.error(ElectricityGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name_electricity"), e.toString());
 			return;
 		}
 

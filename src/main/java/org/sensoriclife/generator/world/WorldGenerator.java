@@ -124,7 +124,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 											//accumulo
 											Value value = new Value(Helpers.toByteArray(residentialUnit));
-											Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+											addMutation(rowid, value);
 											rowid++;
 											user.addAddress((c+k)+"-"+(d+k)+"-"+(s+k)+"-"+(b+k)+"-"+(r+k));
 
@@ -144,7 +144,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+									addMutation(rowid, value);
 									rowid++;
 
 									//spout
@@ -163,7 +163,7 @@ public class WorldGenerator extends BaseRichSpout {
 
 									//accumulo
 									Value value = new Value(Helpers.toByteArray(residentialUnit));
-									Accumulo.getInstance().addMutation(this.confs.get("generator.table_name"), ""+rowid, "residentialUnit", "", value);
+									addMutation(rowid, value);
 									rowid++;
 
 									//spout
@@ -175,10 +175,22 @@ public class WorldGenerator extends BaseRichSpout {
 							}
 
 			created = true;
-			Accumulo.getInstance().closeBashWriter(this.confs.get("generator.table_name"));
+			closeBashWriter();
 		}
 		catch ( IOException | MutationsRejectedException | TableNotFoundException e ) {
 			Logger.error(WorldGenerator.class, "Error while creating world.", e.toString());
 		}
+	}
+	
+	private void addMutation(int rowId, Value value) throws MutationsRejectedException, TableNotFoundException{
+		Accumulo.getInstance().addMutation(this.confs.get("generator.table_name_electricity"), ""+rowId, "residentialUnit", "", value);
+		Accumulo.getInstance().addMutation(this.confs.get("generator.table_name_water"), ""+rowId, "residentialUnit", "", value);
+		Accumulo.getInstance().addMutation(this.confs.get("generator.table_name_heating"), ""+rowId, "residentialUnit", "", value);		
+	}
+	
+	private void closeBashWriter() throws MutationsRejectedException{
+		Accumulo.getInstance().closeBashWriter(this.confs.get("generator.table_name_electricity"));
+		Accumulo.getInstance().closeBashWriter(this.confs.get("generator.table_name_water"));
+		Accumulo.getInstance().closeBashWriter(this.confs.get("generator.table_name_heating"));
 	}
 }

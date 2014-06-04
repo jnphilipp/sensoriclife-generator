@@ -64,10 +64,10 @@ public class HeatingGenerator extends BaseRichSpout {
 
 		Iterator<Map.Entry<Key, Value>> entries = null;
 		try {
-			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name"));
+			entries = Accumulo.getInstance().scanAll(this.confs.get("generator.table_name_heating"));
 		}
 		catch ( TableNotFoundException e ) {
-			Logger.error(HeatingGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name"), e.toString());
+			Logger.error(HeatingGenerator.class, "Error while reading data from: " + this.confs.get("generator.table_name_heating"), e.toString());
 			return;
 		}
 
