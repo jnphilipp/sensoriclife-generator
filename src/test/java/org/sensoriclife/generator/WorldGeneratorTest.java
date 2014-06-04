@@ -77,9 +77,9 @@ public class WorldGeneratorTest {
 	@Test
 	public void testCreateWorld() throws AccumuloException, AccumuloSecurityException, TableExistsException, TableNotFoundException, IOException, InterruptedException {
 		Accumulo.getInstance().connect();
-		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_electricity"));
-		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_water"));
-		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_heating"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_electricity"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_water"));
+		Accumulo.getInstance().createTable(org.sensoriclife.Config.getProperty("generator.table_name_heating"));
 
 		WorldGenerator instance = new WorldGenerator(false);
 		instance.nextTuple();
