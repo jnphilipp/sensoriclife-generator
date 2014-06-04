@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -82,7 +83,14 @@ public class ElectricityGenerator extends BaseRichSpout {
 				continue;
 			}
 
-			unit.setElectricityMeter(valueGenerator.generateNextValue(unit, timestamp));
+			unit.setElectricityMeter(valueGenerator.generateNextValue(unit, timestamp));			
+			try {
+				Value val  = new Value(Helpers.toByteArray(unit));
+				String tableName = this.confs.get("generator.table_name_electricity");
+				Accumulo.getInstance().addMutation(tableName, entry.getKey().toString(), "residentialUnit", "", val);
+			} catch (Exception e) {
+				Logger.error(ElectricityGenerator.class, "could not write new consumption to database");
+			}
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));

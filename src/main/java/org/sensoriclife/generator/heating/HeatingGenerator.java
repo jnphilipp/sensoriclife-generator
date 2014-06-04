@@ -82,7 +82,17 @@ public class HeatingGenerator extends BaseRichSpout {
 				continue;
 			}
 			
-			unit.setHeatingMeters(valueGenerator.generateNextValue(unit, timestamp));			
+			unit.setHeatingMeters(valueGenerator.generateNextValue(unit, timestamp));
+			
+			try {
+				Value val  = new Value(Helpers.toByteArray(unit));
+				String tableName = this.confs.get("generator.table_name_heating");
+				Accumulo.getInstance().addMutation(tableName, entry.getKey().toString(), "residentialUnit", "", val);
+			} catch (Exception e) {
+				Logger.error(HeatingGenerator.class, "could not write new consumption to database");
+			}
+			
+			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String formattedTime = sdf.format(new Date(timestamp.getTime()));
