@@ -35,12 +35,12 @@ public class WorldGeneratorTest {
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.buildings", "10");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.residentialUnits", "10");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.users", "99");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name", "sensoriclife_generator");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.realtime", "true");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.timefactor", "1");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_electricity", "sensoriclife_electricity");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_water", "sensoriclife_water");
-		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name_heating", "sensoriclife_heating");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name_electricity", "sensoriclife_electricity");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name_water", "sensoriclife_water");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("generator.table_name_heating", "sensoriclife_heating");
+		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.table_name", "sensoriclife");
 		org.sensoriclife.Config.getInstance().getProperties().setProperty("accumulo.batch_writer.max_memory", "10000000");
 	}
 
